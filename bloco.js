@@ -22,11 +22,11 @@ class bloco {
 class blocoManager {
     constructor() {
        this.blocos = {
-            "Forward": [],
-            "Rot 90h": [],
-            "Rot 90ah": []
+            "Avançar": [],
+            "Direita": [],
+            "Esquerda": []
         };
-        this.tiposBlocos = ["Forward", "Rot 90h", "Rot 90ah"];
+        this.tiposBlocos = ["Avançar", "Direita", "Esquerda"];
         this.blocoAtual = null;
         this.sequence = [];
         this.inicializacao = false;
@@ -110,14 +110,14 @@ class blocoManager {
         let forwardCount = 0;
 
         for(let action of this.sequence){
-            if(action == "Forward"){
+            if(action == "Avançar"){
                 forwardCount++;
             } else {
                 if(forwardCount > 0){
                     this.movements.push({type: "move", steps: forwardCount});
                     forwardCount = 0;
                 }
-                this.movements.push({type: "rotate", direction: action === "Rot 90h" ? "clockwise" : "counterclockwise"});
+                this.movements.push({type: "rotate", direction: action === "Direita" ? "clockwise" : "counterclockwise"});
             }
 
         }

@@ -7,7 +7,12 @@ class Robot {
         this.x = x;
         this.y = y;
         this.size = size;
-        this.image = robotImage;
+        this.frontImage = robotFront;
+        this.leftImage = robotLeft;
+        this.rightImage = robotRight;
+        this.backImage = robotBack;
+        this.currentImage = this.frontImage;
+        // this.image = robotImage;
         this.isMoving = false;
         this.targetPosition = 0;
         this.sentido = 0;
@@ -16,7 +21,8 @@ class Robot {
 
     display() {
         imageMode(CENTER);
-        image(this.image, this.x, this.y, 105, 80);
+        image(this.currentImage, this.x, this.y, 105, 80);
+        // image(this.image, this.x, this.y, 105, 80);
     }
 
     move(reset) {
@@ -33,6 +39,7 @@ class Robot {
             this.y = this.#y;
             this.sentido = 0;
             this.isMoving = false;
+            this.currentImage = this.frontImage;
         } else {
             this.isMoving = false;
         }
@@ -82,6 +89,19 @@ class Robot {
         if(this.sentido == 360 || this.sentido == -360){
             this.sentido = 0;
         }
+        this.updateImage();
         console.log(this.sentido);
+    }
+
+    updateImage() {
+        if (this.sentido == 0) {
+            this.currentImage = this.frontImage;
+        } else if (this.sentido == 90 || this.sentido == -270) {
+            this.currentImage = this.rightImage;
+        } else if (this.sentido == 180 || this.sentido == -180) {
+            this.currentImage = this.backImage; 
+        } else if (this.sentido == 270 || this.sentido == -90) {
+            this.currentImage = this.leftImage;
+        }
     }
 }

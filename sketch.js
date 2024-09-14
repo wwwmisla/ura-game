@@ -1,9 +1,6 @@
-
 let tela_width = 1440;
 let tela_height = 900;
 let tela_atual;
-
-
 
 function preload() {
     fase1.preload();

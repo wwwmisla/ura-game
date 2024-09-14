@@ -2,8 +2,6 @@ tela_winner = {
     draw: function(){
         background(200);
         
-       
-        
         textSize(50);
         textAlign(CENTER, CENTER);
         text('Parabéns, você chegou ao tesouro!', 700, 400);
