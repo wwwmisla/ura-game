@@ -22,7 +22,6 @@ class Robot {
     display() {
         imageMode(CENTER);
         image(this.currentImage, this.x, this.y, 105, 80);
-        // image(this.image, this.x, this.y, 105, 80);
     }
 
     move(reset) {
@@ -78,7 +77,6 @@ class Robot {
     }
 
     rotacionar(sentido) {
-
         //lembrar que o plano cartesiano nesse caso é diferente do convencional, por isso a rotação é diferente
         //o eixo y é invertido e o sentido horario é positivo
         if(sentido == "clockwise"){

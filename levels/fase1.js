@@ -2,6 +2,11 @@ let fase1 = {
     robot: null,
     blocos: null,
     isDrawing: false,
+    imgAvancar: null,
+    imgEsquerda: null,
+    imgDireita: null,
+    imgExecutar: null,
+    imgLimpar: null,
     bau: null,
     tela_win: null,
     win_sound: null,
@@ -16,9 +21,8 @@ let fase1 = {
         roboY = Math.floor((Math.random() * 12)) * 75 + 35 - 9;
         this.robot = new Robot(roboX, roboY, 75);
         this.blocos = new blocoManager();
-        this.blocos.addbloco(20, 30, 150, 80, "Avançar"); // Forward
-        this.blocos.addbloco(210, 30, 150, 80, "Direita"); // Rot 90h | Girar 90° Horário
-        this.blocos.addbloco(20, 130, 150, 80, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
+
+        this.blocoPadrao();
 
         this.blocos.concluirInicializacao();
 
@@ -26,9 +30,9 @@ let fase1 = {
         this.eixoX = Math.floor((Math.random() * 12)) * 75 + 540 + 35;
         this.eixoY = Math.floor((Math.random() * 12)) * 75 + 35;
     },
-
+    
     draw: function () {
-        background(250);
+        background("#F6F6F6");
         drawGrid();
         this.robot.display(); //função que exibe o robo
         image(this.bau, this.eixoX, this.eixoY, 75, 70); //exibe o bau
@@ -49,7 +53,12 @@ let fase1 = {
         robotLeft = loadImage('images/robot/robot02.svg'); //esquerda
         robotRight = loadImage('images/robot/robot04.svg'); // direita
         robotBack = loadImage('images/robot/robot03.svg'); // tras
-        // robotImage = loadImage('images/robo.png');
+
+        this.imgAvancar = loadImage('images/blocos/avancar.png');
+        this.imgEsquerda = loadImage('images/blocos/esquerda.png');
+        this.imgDireita = loadImage('images/blocos/direita.png');
+        this.imgExecutar = loadImage('images/botoes/executar.png');
+        this.imgLimpar = loadImage('images/botoes/limpar.png');
         this.bau = loadImage('images/bau.png');
         this.win_sound = loadSound('audio/winsound.wav');
     },
@@ -71,7 +80,7 @@ let fase1 = {
 
     displayUI: function () {
         textSize(20);
-        text(`x: ${mouseX}, y: ${mouseY}`, 800, 20);
+        text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
         text(`isDrawing: ${this.isDrawing}`, 100, 20);
         text(`tam: ${this.robot.targetPosition}`, 300, 150);
         text(`move: ${this.robot.isMoving}`, 300, 200);
@@ -99,9 +108,9 @@ let fase1 = {
     },
 
     blocoPadrao: function () {
-        this.blocos.addbloco(20, 30, 150, 80, "Avançar");
-        this.blocos.addbloco(210, 30, 150, 80, "Direita");
-        this.blocos.addbloco(20, 130, 150, 80, "Esquerda");
+        this.blocos.addbloco(20, 30, 150, 80, "Avançar"); // Forward
+        this.blocos.addbloco(210, 30, 150, 80, "Direita"); // Rot 90h | Girar 90° Horário
+        this.blocos.addbloco(20, 130, 150, 80, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
     },
     habilitarMovimento: function () {
         let sequenciaDeMovimentos = this.blocos.getMovementSequence();
