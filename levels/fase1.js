@@ -15,6 +15,9 @@ let fase1 = {
     tolerancia: [3, 12],
     eixoX: 0,
     eixoY: 0,
+    whileDetected: false,
+    movimento: null,
+    sequenciaDeMovimentos: null,
 
     init: function () {
         // Tamanho dos blocos e dimensões do grid
@@ -41,7 +44,7 @@ let fase1 = {
     },
 
     draw: function () {
-        background("#F6F6F6");
+        background(255);
         this.cenario.exibirCenario(); // Desenha o cenário
         this.robot.display(); //função que exibe o robo
         image(this.bau, this.eixoX, this.eixoY, 75, 70); //exibe o bau
@@ -54,6 +57,14 @@ let fase1 = {
 
         if (this.robot.isMoving) {
             this.robot.move(false);
+            if (this.cenario.verificarColisao(this.robot)) {
+                console.log("O robô colidiu com um obstáculo!");
+                this.whileDetected = false;
+                this.sequenciaDeMovimentos = [];
+                this.reinitialize(); // Reinicializa se houver colisão
+                this.robot.move(true);
+                return;
+            }
         }
     },
 
@@ -62,6 +73,7 @@ let fase1 = {
         robotLeft = loadImage('images/robot/robot02.svg'); //esquerda
         robotRight = loadImage('images/robot/robot04.svg'); // direita
         robotBack = loadImage('images/robot/robot03.svg'); // tras
+        font = loadFont('fonts/Silkscreen-Bold.ttf');
 
         this.imgAvancar = loadImage('images/blocos/avancar.png');
         this.imgEsquerda = loadImage('images/blocos/esquerda.png');
@@ -88,15 +100,11 @@ let fase1 = {
     },
 
     displayUI: function () {
-        textSize(20);
+        textSize(12);
         text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
         text(`isDrawing: ${this.isDrawing}`, 100, 20);
-        text(`tam: ${this.robot.targetPosition}`, 300, 150);
+        //text(`tam: ${this.robot.targetPosition}`, 300, 150);
         text(`move: ${this.robot.isMoving}`, 300, 200);
-
-        strokeWeight(3);
-        line(0, 225, 539, 225);
-        strokeWeight(2);
 
         drawButton(350, 830, 100, 50, "Executar");
         drawButton(50, 830, 100, 50, "Limpar");
@@ -106,6 +114,7 @@ let fase1 = {
         //verifica se o click foi dentro do botão limpar
         if (isClickInside(50, 830, 100, 50)) {
             this.reinitialize();
+            this.whileDetected = false;
             //possivel mudança de nome para evitar confusões, o "true" não significa que o robô está se movendo e sim que está resetando a posição
             this.robot.move(true);
         }
@@ -117,53 +126,68 @@ let fase1 = {
     },
 
     blocoPadrao: function () {
-        this.blocos.addbloco(20, 30, 150, 80, "Avançar"); // Forward
-        this.blocos.addbloco(210, 30, 150, 80, "Direita"); // Rot 90h | Girar 90° Horário
-        this.blocos.addbloco(20, 130, 150, 80, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
+        this.blocos.addbloco(20, 40, 180, 40, "Avançar"); // Forward
+        this.blocos.addbloco(240, 40, 180, 40, "Direita"); // Rot 90h | Girar 90° Horário
+        this.blocos.addbloco(20, 140, 180, 40, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
+        this.blocos.addbloco(240, 140, 180, 40, "While"); // While
     },
     habilitarMovimento: function () {
-        let sequenciaDeMovimentos = this.blocos.getMovementSequence();
-        this.executeMovementSequence(sequenciaDeMovimentos);
+        this.sequenciaDeMovimentos = this.blocos.getMovementSequence();
+        this.executeMovementSequence();
     },
 
-    executeMovementSequence: function (sequenciaDeMovimentos) {
+    executeMovementSequence: function () {
         //sequencia completa ou vazia
-        if (sequenciaDeMovimentos.length == 0) {
+        if (this.sequenciaDeMovimentos.length == 0) {
             console.log(this.robot.x, this.robot.y);
             console.log(this.eixoX, this.eixoY);
             this.verificarVitoria();
             this.reinitialize();
             return;
         }
+        
+        
+        this.movimento = this.sequenciaDeMovimentos.shift();
 
-        let movimento = sequenciaDeMovimentos.shift();
-        console.log(movimento);
-
-        // Verifica se o robô colide com um obstáculo antes de se mover
-        if (this.cenario.verificarColisao(this.robot)) {
-            console.log("O robô colidiu com um obstáculo!");
-            this.reinitialize(); // Reinicializa se houver colisão
-            return;
+        //repete o movimento quando while é detectado
+        if(this.whileDetected == true && this.movimento.type != "while"){
+            console.log("While detected");
+            this.sequenciaDeMovimentos.push(this.movimento);
+            this.verificarVitoria();
         }
 
-        if (movimento.type == "move") {
-            this.robot.moverPara(movimento.steps);
+        //detecta o while
+        if(this.movimento.type == "while"){
+            this.whileDetected = true;
+        }
+        
+        console.log(this.movimento);
+
+        // Verifica se o robô colide com um obstáculo antes de se mover
+        
+
+        if (this.movimento.type == "move") {
+            this.robot.moverPara(this.movimento.steps);
             //espera o movimento terminar para passar para o proximo
             setTimeout(() => {
-                this.executeMovementSequence(sequenciaDeMovimentos);
-            }, 1400 * movimento.steps); // talvez necessario ajustar o delay?
-        } else if (movimento.type == "rotate") {
-            this.robot.rotacionar(movimento.direction);
+                this.executeMovementSequence(this.sequenciaDeMovimentos);
+            }, 1400 * this.movimento.steps); // talvez necessario ajustar o delay?
+        } else if (this.movimento.type == "rotate") {
+            this.robot.rotacionar(this.movimento.direction);
             //espera a rotação terminar para passsar para a proxima
             setTimeout(() => {
-                this.executeMovementSequence(sequenciaDeMovimentos);
+                this.executeMovementSequence(this.sequenciaDeMovimentos);
             }, 500); // talvez necessario ajustar o delay?
+        }
+        if(this.movimento.type == "while"){
+            this.executeMovementSequence(this.sequenciaDeMovimentos);
         }
     },
 
     verificarVitoria: function () {
         if ((Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) && this.robot.isMoving == false) {
             console.log("Chegou aqui");
+            this.whileDetected = false;
             this.tela_vitoria();
         }
     },

@@ -49,6 +49,9 @@ class Cenario {
                 }
             }
         }
+        strokeWeight(3);
+        line(0, 225, 539, 225);
+        strokeWeight(2);
     }
 
     // Função para verificar colisões com obstáculos

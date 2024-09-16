@@ -61,13 +61,13 @@ class Robot {
         if(blocoCount > 0){
             console.log(blocoCount);
             if(this.sentido == 0){
-                this.targetPosition = this.x + (blocoCount * this.size);
+                this.targetPosition = this.x - 1 + (blocoCount * this.size);
             } else if (this.sentido == 90 || this.sentido == -270){
-                this.targetPosition = this.y + (blocoCount * this.size);
+                this.targetPosition = this.y - 1 + (blocoCount * this.size);
             } else if (this.sentido == 180 || this.sentido == -180){
-                this.targetPosition = this.x - (blocoCount * this.size);
+                this.targetPosition = this.x + 1 - (blocoCount * this.size);
             } else if (this.sentido == 270 || this.sentido == -90){
-                this.targetPosition = this.y - (blocoCount * this.size);
+                this.targetPosition = this.y + 1 - (blocoCount * this.size);
             }
             this.isMoving = true;
         } else {
