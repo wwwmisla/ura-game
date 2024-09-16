@@ -12,7 +12,6 @@ class Robot {
         this.rightImage = robotRight;
         this.backImage = robotBack;
         this.currentImage = this.frontImage;
-        // this.image = robotImage;
         this.isMoving = false;
         this.targetPosition = 0;
         this.sentido = 0;

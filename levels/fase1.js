@@ -1,4 +1,5 @@
 let fase1 = {
+    cenario: null,
     robot: null,
     blocos: null,
     isDrawing: false,
@@ -16,6 +17,14 @@ let fase1 = {
     eixoY: 0,
 
     init: function () {
+        // Tamanho dos blocos e dimensões do grid
+        let tamanhoBloco = 75;
+        let numLinhas = Math.floor(900 / tamanhoBloco); // ajusta para o tamanho da tela
+        let numColunas = Math.floor(1440 / tamanhoBloco); // ajusta para o tamanho da tela
+
+        // Inicializa o cenário
+        this.cenario = new Cenario(tamanhoBloco, numLinhas, numColunas);
+
         //posição aleatória do robo
         roboX = Math.floor((Math.random() * 12)) * 75 + 35 + 540;
         roboY = Math.floor((Math.random() * 12)) * 75 + 35 - 9;
@@ -30,10 +39,10 @@ let fase1 = {
         this.eixoX = Math.floor((Math.random() * 12)) * 75 + 540 + 35;
         this.eixoY = Math.floor((Math.random() * 12)) * 75 + 35;
     },
-    
+
     draw: function () {
         background("#F6F6F6");
-        drawGrid();
+        this.cenario.exibirCenario(); // Desenha o cenário
         this.robot.display(); //função que exibe o robo
         image(this.bau, this.eixoX, this.eixoY, 75, 70); //exibe o bau
         this.blocos.displayblocos(); //função que exibe os blocos
@@ -129,6 +138,14 @@ let fase1 = {
 
         let movimento = sequenciaDeMovimentos.shift();
         console.log(movimento);
+
+        // Verifica se o robô colide com um obstáculo antes de se mover
+        if (this.cenario.verificarColisao(this.robot)) {
+            console.log("O robô colidiu com um obstáculo!");
+            this.reinitialize(); // Reinicializa se houver colisão
+            return;
+        }
+
         if (movimento.type == "move") {
             this.robot.moverPara(movimento.steps);
             //espera o movimento terminar para passar para o proximo

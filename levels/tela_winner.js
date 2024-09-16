@@ -1,6 +1,6 @@
 tela_winner = {
     draw: function(){
-        background(200);
+        background("#F6F6F6");
         
         textSize(50);
         textAlign(CENTER, CENTER);
