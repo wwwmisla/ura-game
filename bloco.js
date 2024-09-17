@@ -1,30 +1,61 @@
 class bloco {
-    constructor(x, y, w, h, img) {
+    constructor(x, y, w, h, text) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-        this.img = img;
+        this.text = text;
+        this.tam = 80;
     }
 
     display() {
-        // Calcula o fator de escala para garantir que a imagem se ajuste
-        const scaleFactor = Math.min(this.w / this.img.width, this.h / this.img.height) * 1.4;
+        //background(255);
+        // Desenhar o bloco principal (retângulo com bordas arredondadas)
+        if(this.text == "While"){
+            fill("#3E7FC1");
+            noStroke();
+            rect(this.x, this.y, this.w, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y, this.h, this.tam, 20, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y+this.tam, this.w + this.x/10, this.h/2, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
 
-        // Largura e altura da imagem escalada
-        const imgW = this.img.width * scaleFactor;
-        const imgH = this.img.height * scaleFactor;
 
-        // Calcula a posição da imagem para centralizá-la
-        const imgX = this.x + (this.w) / 2;
-        const imgY = this.y + (this.h) / 2;
+            circle(this.x + this.w/3 , this.y + this.h , 20)
+            fill(255); // Cor branca do texto
+                
+            circle(this.x +this.w/5, this.y, 20);
+        
+        } else {
+            fill("#3E7FC1");
+            noStroke();
+            rect(this.x, this.y, this.w, this.h, 20, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
+        
+            circle(this.x + this.w/5 , this.y + this.h , 20)
+            fill(255); // Cor branca do texto
+            
+            circle(this.x +this.w/5, this.y , 20);
+            
+        }
 
-        // Desenha a imagem no local calculado
-        image(this.img, imgX, imgY, imgW, imgH);
+        textAlign(CENTER, CENTER);
+        textSize(12);
+        textFont(font);
+        
+        if(this.text == "Avançar"){
+            text("seguir em frente", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+        }
+        if(this.text == "Direita"){
+            text("virar à direita", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+        }
+        if(this.text == "Esquerda"){
+            text("virar à esquerda", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+        }
+        if(this.text == "While"){
+            text("Repetir até que", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+        }
+        
     }
 
     isInside(px, py) {
-        // Verifica se o ponto (px, py) está dentro da área do botão
         return px >= this.x && px <= this.x + this.w && py >= this.y && py <= this.y + this.h;
     }
 }
@@ -34,46 +65,76 @@ class blocoManager {
         this.blocos = {
             "Avançar": [],
             "Direita": [],
-            "Esquerda": []
+            "Esquerda": [],
+            "While": []
         };
-        this.tiposBlocos = ["Avançar", "Direita", "Esquerda"];
+        this.tiposBlocos = ["Avançar", "Direita", "Esquerda","While"];
         this.blocoAtual = null;
         this.sequence = [];
         this.inicializacao = false;
         this.movements = [];
         this.novoX = 30;
-        this.novoY = 225;
+        this.novoY = 250;
+        this.whileBloco = null;
+        this.contador = 40;
     }
 
-    addbloco(x, y, w, h, tipo) {
-        let img;
-        if (tipo === "Avançar") {
-            img = fase1.imgAvancar;
-        } else if (tipo === "Direita") {
-            img = fase1.imgDireita;
-        } else if (tipo === "Esquerda") {
-            img = fase1.imgEsquerda;
-        }
-
-        if (this.tiposBlocos.includes(tipo)) {
-            this.blocos[tipo].push(new bloco(x, y, w, h, img));
+    addbloco(x, y, w, h, text) {
+        if (this.tiposBlocos.includes(text)) {
+            let novoBloco = new bloco(x, y, w, h, text);
+            this.blocos[text].push(novoBloco);
+            
             if (this.inicializacao) {
-                this.sequence.push(tipo);
+                // Armazena a referência ao bloco se for "While"
+                if (text === "While") {
+                    this.whileBloco = novoBloco;
+                }
+
+                // Guarda o tipo e o próprio bloco no sequence
+                this.sequence.push({tipo: text, x: x, y: y});
             }
         }
     }
 
     displayblocos() {
-        for (let tipo of this.tiposBlocos) {
-            for (let bloco of this.blocos[tipo]) {
+        for(let tipo of this.tiposBlocos){
+            for(let bloco of this.blocos[tipo]){
                 bloco.display();
             }
+        }
+        this.displayConnectors();
+    }
+
+    displayConnectors() {
+        for (let i = this.sequence.length - 1; i >= 0; i--) {
+            let bloco = this.sequence[i];
+            if(bloco.tipo === "While"){
+                let x = bloco.x + 180/3;
+                let y = bloco.y + 40;
+
+                fill("#3E7FC1"); // Cor azul para o conector inferior
+                circle(x+1, y, 20);
+            
+                fill(255); // Cor branca para o conector superior
+                circle(x-24, y-40, 20);
+
+            } else {
+                let x = bloco.x + 180/5;
+                let y = bloco.y;
+
+                fill("#3E7FC1"); // Cor azul para o conector inferior
+                circle(x, y + 40, 20);
+            
+                fill(255); // Cor branca para o conector superior
+                circle(x, y, 20);
+            }
+            
         }
     }
 
     Arrastar(x, y) {
-        for (let tipo of this.tiposBlocos) {
-            if (this.blocos[tipo][0] && this.blocos[tipo][0].isInside(x, y)) {
+        for(let tipo of this.tiposBlocos){
+            if(this.blocos[tipo][0] && this.blocos[tipo][0].isInside(x, y)){
                 this.blocoAtual = tipo;
                 return true;
             }
@@ -82,69 +143,80 @@ class blocoManager {
     }
 
     previewbloco(x, y) {
-        if (this.blocoAtual) {
-            rect(x, y, 150, 80);
-            textSize(30);
+        if(this.blocoAtual){
+            rect(x, y, 200, 40);
+            textSize(14);
             textAlign(CENTER, CENTER);
-            text(this.blocoAtual, x + 150 / 2, y + 80 / 2);
+            text(this.blocoAtual, x + 180/2, y + 40/2);
         }
     }
 
     addblocoAtPosition(x, y) {
         if (y > 225 && x < 540 - 150 && this.blocoAtual) {
-            // Encontra a posição Y do último bloco na sequência
             if (this.sequence.length > 0) {
-                let ultimoBloco = this.blocos[this.sequence[this.sequence.length - 1]];
-                if (ultimoBloco.length > 0) {
-                    if (ultimoBloco[ultimoBloco.length - 1].y + 80 >= 750) {
-                        this.novoX += 160;
-                        this.novoY = 225;
-                    } else {
-                        this.novoY = ultimoBloco[ultimoBloco.length - 1].y + 35; // 80 (altura do bloco) + 10 (espaço entre blocos)
-                    }
+                let ultimoBloco = this.sequence[this.sequence.length - 1];
+                if(ultimoBloco.y + 80 >= 750){
+                    this.novoX += 220;
+                    this.novoY = 250;
+                } else {
+                    this.novoY = ultimoBloco.y + 40;
                 }
             }
-            this.addbloco(this.novoX, this.novoY, 150, 80, this.blocoAtual);
+            if(this.whileBloco){
+                this.addbloco(this.novoX+25, this.novoY, 180, 40, this.blocoAtual);
+                this.whileBloco.tam = 40 + this.contador;
+                this.contador += 40;
+            } else {
+                this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+            }
+            
         }
     }
 
-    concluirInicializacao() {
+    concluirInicializacao(){
         this.inicializacao = true;
     }
 
     clear() {
-        for (let tipo of this.tiposBlocos) {
+        for(let tipo of this.tiposBlocos){
             this.blocos[tipo] = [];
         }
+        this.contador = 40;
+        this.whileBloco = null;
         this.blocoAtual = null;
         this.sequence = [];
         this.movements = [];
         this.novoX = 30;
-        this.novoY = 225;
+        this.novoY = 250;
     }
 
-    getMovementSequence() {
+    getMovementSequence(){
         this.movements = [];
         let forwardCount = 0;
-
-        for (let action of this.sequence) {
-            if (action == "Avançar") {
-                forwardCount++;
-            } else {
-                if (forwardCount > 0) {
-                    this.movements.push({ type: "move", steps: forwardCount });
+        
+        for(let action of this.sequence){
+            let tipo = action.tipo;
+            if(tipo == "While"){
+                if(forwardCount > 0){
+                    this.movements.push({type: "move", steps: forwardCount});
                     forwardCount = 0;
                 }
-                this.movements.push({ type: "rotate", direction: action === "Direita" ? "clockwise" : "counterclockwise" });
+                this.movements.push({type: "while", whiletrue: "enquanto"});
+            } else if(tipo == "Avançar"){
+                forwardCount++;
+            } else {
+                if(forwardCount > 0){
+                    this.movements.push({type: "move", steps: forwardCount});
+                    forwardCount = 0;
+                }
+                this.movements.push({type: "rotate", direction: tipo === "Direita" ? "clockwise" : "counterclockwise"});
             }
-
         }
 
-        if (forwardCount > 0) {
-            this.movements.push({ type: "move", steps: forwardCount });
+        if(forwardCount > 0){
+            this.movements.push({type: "move", steps: forwardCount});
         }
 
         return this.movements;
     }
-
 }
