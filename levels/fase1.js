@@ -59,8 +59,8 @@ let fase1 = {
             this.robot.move(false);
             if (this.cenario.verificarColisao(this.robot)) {
                 console.log("O robô colidiu com um obstáculo!");
-                this.whileDetected = false;
                 this.sequenciaDeMovimentos = [];
+                this.whileDetected = false;
                 this.reinitialize(); // Reinicializa se houver colisão
                 this.robot.move(true);
                 return;
@@ -75,11 +75,11 @@ let fase1 = {
         robotBack = loadImage('images/robot/robot03.svg'); // tras
         font = loadFont('fonts/Silkscreen-Bold.ttf');
 
-        this.imgAvancar = loadImage('images/blocos/avancar.png');
-        this.imgEsquerda = loadImage('images/blocos/esquerda.png');
-        this.imgDireita = loadImage('images/blocos/direita.png');
-        this.imgExecutar = loadImage('images/botoes/executar.png');
-        this.imgLimpar = loadImage('images/botoes/limpar.png');
+        //this.imgAvancar = loadImage('images/blocos/avancar.png');
+        //this.imgEsquerda = loadImage('images/blocos/esquerda.png');
+        //this.imgDireita = loadImage('images/blocos/direita.png');
+       //this.imgExecutar = loadImage('images/botoes/executar.png');
+        //this.imgLimpar = loadImage('images/botoes/limpar.png');
         this.bau = loadImage('images/bau.png');
         this.win_sound = loadSound('audio/winsound.wav');
     },
@@ -104,7 +104,7 @@ let fase1 = {
         text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
         text(`isDrawing: ${this.isDrawing}`, 100, 20);
         //text(`tam: ${this.robot.targetPosition}`, 300, 150);
-        text(`move: ${this.robot.isMoving}`, 300, 200);
+        //text(`move: ${this.robot.isMoving}`, 300, 200);
 
         drawButton(350, 830, 100, 50, "Executar");
         drawButton(50, 830, 100, 50, "Limpar");
@@ -129,7 +129,7 @@ let fase1 = {
         this.blocos.addbloco(20, 40, 180, 40, "Avançar"); // Forward
         this.blocos.addbloco(240, 40, 180, 40, "Direita"); // Rot 90h | Girar 90° Horário
         this.blocos.addbloco(20, 140, 180, 40, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
-        this.blocos.addbloco(240, 140, 180, 40, "While"); // While
+        this.blocos.addbloco(240, 140-20, 180, 40, "While"); // While
     },
     habilitarMovimento: function () {
         this.sequenciaDeMovimentos = this.blocos.getMovementSequence();
@@ -200,6 +200,7 @@ let fase1 = {
         mudanca_tela(tela_winner);
     },
     reinitialize: function () {
+        this.sequenciaDeMovimentos = [];
         this.blocos.inicializacao = false; //para entender melhor o bloco de inicialização, ver bloco.js e o README
         this.blocos.clear();
         this.blocoPadrao();

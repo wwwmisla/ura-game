@@ -5,22 +5,41 @@ class bloco {
         this.w = w;
         this.h = h;
         this.text = text;
+        this.tam = 80;
     }
 
     display() {
         //background(255);
         // Desenhar o bloco principal (retângulo com bordas arredondadas)
-        fill("#3E7FC1");
-        noStroke();
-        rect(this.x, this.y, this.w, this.h, 20, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
-    
-        circle(this.x + this.w/5 , this.y + this.h , 20)
-        fill(255); // Cor branca do texto
+        if(this.text == "While"){
+            fill("#3E7FC1");
+            noStroke();
+            rect(this.x, this.y, this.w, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y, this.h, this.tam, 20, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y+this.tam, this.w + this.x/10, this.h/2, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
+
+
+            circle(this.x + this.w/3 , this.y + this.h , 20)
+            fill(255); // Cor branca do texto
+                
+            circle(this.x +this.w/5, this.y, 20);
         
-        circle(this.x +this.w/5, this.y , 20);
+        } else {
+            fill("#3E7FC1");
+            noStroke();
+            rect(this.x, this.y, this.w, this.h, 20, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
+        
+            circle(this.x + this.w/5 , this.y + this.h , 20)
+            fill(255); // Cor branca do texto
+            
+            circle(this.x +this.w/5, this.y , 20);
+            
+        }
+
         textAlign(CENTER, CENTER);
         textSize(12);
         textFont(font);
+        
         if(this.text == "Avançar"){
             text("seguir em frente", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
         }
@@ -31,7 +50,7 @@ class bloco {
             text("virar à esquerda", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
         }
         if(this.text == "While"){
-            text("enquanto", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+            text("Repetir até que", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
         }
         
     }
@@ -56,12 +75,22 @@ class blocoManager {
         this.movements = [];
         this.novoX = 30;
         this.novoY = 250;
+        this.whileBloco = null;
+        this.contador = 40;
     }
 
     addbloco(x, y, w, h, text) {
-        if(this.tiposBlocos.includes(text)){
-            this.blocos[text].push(new bloco(x, y, w, h, text));
-            if(this.inicializacao){
+        if (this.tiposBlocos.includes(text)) {
+            let novoBloco = new bloco(x, y, w, h, text);
+            this.blocos[text].push(novoBloco);
+            
+            if (this.inicializacao) {
+                // Armazena a referência ao bloco se for "While"
+                if (text === "While") {
+                    this.whileBloco = novoBloco;
+                }
+
+                // Guarda o tipo e o próprio bloco no sequence
                 this.sequence.push({tipo: text, x: x, y: y});
             }
         }
@@ -79,14 +108,27 @@ class blocoManager {
     displayConnectors() {
         for (let i = this.sequence.length - 1; i >= 0; i--) {
             let bloco = this.sequence[i];
-            let x = bloco.x + 180/5;
-            let y = bloco.y;
+            if(bloco.tipo === "While"){
+                let x = bloco.x + 180/3;
+                let y = bloco.y + 40;
 
-            fill("#3E7FC1"); // Cor azul para o conector inferior
-            circle(x, y + 40, 20);
-        
-            fill(255); // Cor branca para o conector superior
-            circle(x, y, 20);
+                fill("#3E7FC1"); // Cor azul para o conector inferior
+                circle(x+1, y, 20);
+            
+                fill(255); // Cor branca para o conector superior
+                circle(x-24, y-40, 20);
+
+            } else {
+                let x = bloco.x + 180/5;
+                let y = bloco.y;
+
+                fill("#3E7FC1"); // Cor azul para o conector inferior
+                circle(x, y + 40, 20);
+            
+                fill(255); // Cor branca para o conector superior
+                circle(x, y, 20);
+            }
+            
         }
     }
 
@@ -120,7 +162,14 @@ class blocoManager {
                     this.novoY = ultimoBloco.y + 40;
                 }
             }
-            this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+            if(this.whileBloco){
+                this.addbloco(this.novoX+25, this.novoY, 180, 40, this.blocoAtual);
+                this.whileBloco.tam = 40 + this.contador;
+                this.contador += 40;
+            } else {
+                this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+            }
+            
         }
     }
 
@@ -132,6 +181,8 @@ class blocoManager {
         for(let tipo of this.tiposBlocos){
             this.blocos[tipo] = [];
         }
+        this.contador = 40;
+        this.whileBloco = null;
         this.blocoAtual = null;
         this.sequence = [];
         this.movements = [];
