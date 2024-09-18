@@ -16,9 +16,8 @@ class Cenario {
                 if (tipoBloco === 0) {
                     linha.push(0); // Caminho
                 } else {
-                    // Obstáculo, define qual tipo será: buraco, cone ou árvore
                     let obstaculoSorteado = this.obterObstaculoAleatorio();
-                    linha.push({ tipo: obstaculoSorteado });
+                    linha.push({ tipo: obstaculoSorteado }); // Obstáculo
                 }
             }
             grid.push(linha);
@@ -26,13 +25,11 @@ class Cenario {
         return grid;
     }
 
-    // Sorteia se o bloco será caminho ou obstáculo
     sortearTipoBloco() {
-        // 0 é caminho, 1 é obstáculo
-        return random() < 0.8 ? 0 : 1; // 80% chance de ser caminho
+        return random() < 0.8 ? 0 : 1; // 80% de chance de ser caminho
     }
 
-    // Objeto de obstáculos com diferentes tipos (buraco, cone, árvore)
+    // Obstáculos
     obstaculos = {
         buraco: (x, y, tamanhoBloco) => {
             fill("#4A4A4A"); // Preto Pastel para buraco
@@ -59,14 +56,12 @@ class Cenario {
         }
     };
 
-    // Função para sortear o tipo de obstáculo (buraco, cone, árvore)
     obterObstaculoAleatorio() {
         const tiposObstaculos = ['buraco', 'cone', 'arvore'];
         const indiceAleatorio = Math.floor(Math.random() * tiposObstaculos.length);
         return tiposObstaculos[indiceAleatorio];
     }
 
-    // Função que desenha o cenário na tela
     exibirCenario() {
         let offsetX = 540; // Largura da UI à esquerda
         for (let i = 0; i < this.numLinhas; i++) {
@@ -74,15 +69,19 @@ class Cenario {
                 let x = j * this.tamanhoBloco + offsetX; // Ajustar para desenhar a partir da direita
                 let y = i * this.tamanhoBloco;
                 let tipoBloco = this.grid[i][j];
-
-                if (tipoBloco === 0) {
-                    // Desenha o caminho
-                    fill("#FFF"); // Branco Pastel para o caminho
-                    stroke("#3E7FC1"); // Azul Pastel Médio
-                    strokeWeight(2);
-                    rect(x, y, this.tamanhoBloco, this.tamanhoBloco);
-                } else {
-                    // Desenha o obstáculo armazenado
+    
+                // Define as cores para o caminho e a borda
+                let corFundo = "#e8e8e8"; // Usando o dark-30 da paleta
+                let corBorda = "#f7fafc"; // Usando o dark-40 para uma borda bem sutil
+    
+                // Aplicando o fundo para todas as células (caminho e obstáculos)
+                fill(corFundo);
+                stroke(corBorda);
+                strokeWeight(1); // Borda bem fina e sutil
+                rect(x, y, this.tamanhoBloco, this.tamanhoBloco);
+    
+                if (tipoBloco !== 0) {
+                    // Desenha o obstáculo sobre o fundo
                     let tipoObstaculo = tipoBloco.tipo;
                     if (tipoObstaculo === 'buraco') {
                         this.obstaculos.buraco(x, y, this.tamanhoBloco);
@@ -94,15 +93,23 @@ class Cenario {
                 }
             }
         }
-
-        // Desenha a linha divisória da UI
-        stroke("#3E7FC1");
+    
+        // Linha divisória vertical (azul)
+        stroke("#3E7FC1"); // Cor azul
+        strokeWeight(3); // Peso da linha maior para destacá-la
+        let xInicial = offsetX; // Posição ajustada para a borda esquerda do primeiro bloco
+        let yInicial = 0; // Começa no topo
+        let yFinal = this.numLinhas * this.tamanhoBloco; // Vai até a última célula
+        line(xInicial, yInicial, xInicial, yFinal);
+    
+        // Linha divisória horizontal da UI
         strokeWeight(3);
-        line(0, 225, 539, 225); // Continua até a borda da grid
+        line(0, 225, 539, 225);
+    
         strokeWeight(2); // Resetar o peso da linha para o padrão
     }
+    
 
-    // Função para verificar colisões com obstáculos
     verificarColisao(robot) {
         let colunaAtual = floor((robot.x - 540) / this.tamanhoBloco); // Ajuste para a área do cenário
         let linhaAtual = floor(robot.y / this.tamanhoBloco);
