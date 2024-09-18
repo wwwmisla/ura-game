@@ -12,7 +12,7 @@ class bloco {
         //background(255);
         // Desenhar o bloco principal (retângulo com bordas arredondadas)
         if(this.text == "While"){
-            fill("#3E7FC1");
+            fill("#F7C6D5");
             noStroke();
             rect(this.x, this.y, this.w, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
             rect(this.x - this.x/10, this.y, this.h, this.tam, 20, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
@@ -112,7 +112,7 @@ class blocoManager {
                 let x = bloco.x + 180/3;
                 let y = bloco.y + 40;
 
-                fill("#3E7FC1"); // Cor azul para o conector inferior
+                fill("#F7C6D5"); // Cor rosa para o conector inferior
                 circle(x+1, y, 20);
             
                 fill(255); // Cor branca para o conector superior
