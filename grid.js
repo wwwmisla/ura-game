@@ -22,6 +22,25 @@ class Cenario {
             }
             grid.push(linha);
         }
+    
+        // Função para garantir que o tesouro tenha espaço ao redor
+        const garantirEspacoAoRedorDoTesouro = (x, y) => {
+            const direcoes = [
+                [-1, 0], [1, 0], [0, -1], [0, 1], // cima, baixo, esquerda, direita
+            ];
+            for (let [dx, dy] of direcoes) {
+                let novoX = x + dx;
+                let novoY = y + dy;
+                if (novoX >= 0 && novoX < this.numColunas && novoY >= 0 && novoY < this.numLinhas) {
+                    grid[novoY][novoX] = 0; // Garante que ao menos uma célula ao redor seja caminho
+                }
+            }
+        };
+    
+        // Verifica a posição do baú e garante espaço ao redor
+        let [bauX, bauY] = [Math.floor(this.eixoX / this.tamanhoBloco), Math.floor(this.eixoY / this.tamanhoBloco)];
+        garantirEspacoAoRedorDoTesouro(bauX, bauY);
+    
         return grid;
     }
 

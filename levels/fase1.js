@@ -22,25 +22,32 @@ let fase1 = {
     init: function () {
         // Tamanho dos blocos e dimensões do grid
         let tamanhoBloco = 75;
-        let numLinhas = Math.floor(900 / tamanhoBloco); // ajusta para o tamanho da tela
-        let numColunas = Math.floor(1440 / tamanhoBloco); // ajusta para o tamanho da tela
-
+        let numLinhas = Math.floor(900 / tamanhoBloco); 
+        let numColunas = Math.floor(1440 / tamanhoBloco); 
+    
         // Inicializa o cenário
         this.cenario = new Cenario(tamanhoBloco, numLinhas, numColunas);
-
-        //posição aleatória do robo
-        roboX = Math.floor((Math.random() * 12)) * 75 + 35 + 540;
-        roboY = Math.floor((Math.random() * 12)) * 75 + 35 - 9;
+    
+        // Função para garantir que o robo/tesouro caia em uma célula livre
+        const posicaoLivre = () => {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * numColunas);
+                y = Math.floor(Math.random() * numLinhas);
+            } while (this.cenario.grid[y][x] !== 0); // Verifica se a célula é um caminho (0)
+            return [x * tamanhoBloco + 35 + 540, y * tamanhoBloco + 35];
+        };
+    
+        // Posição aleatória do robô em uma célula livre
+        [roboX, roboY] = posicaoLivre();
         this.robot = new Robot(roboX, roboY, 75);
+    
         this.blocos = new blocoManager();
-
         this.blocoPadrao();
-
         this.blocos.concluirInicializacao();
-
-        //posição aleatória do bau
-        this.eixoX = Math.floor((Math.random() * 12)) * 75 + 540 + 35;
-        this.eixoY = Math.floor((Math.random() * 12)) * 75 + 35;
+    
+        // Posição aleatória do baú em uma célula livre
+        [this.eixoX, this.eixoY] = posicaoLivre();
     },
 
     draw: function () {
