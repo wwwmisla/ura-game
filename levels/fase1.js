@@ -94,8 +94,9 @@ let fase1 = {
 
     mouseReleased: function () {
         if (this.isDrawing) {
-            this.blocos.addblocoAtPosition(mouseX, mouseY);
             this.isDrawing = false;
+            this.blocos.addblocoAtPosition(mouseX, mouseY);
+            
         }
     },
 

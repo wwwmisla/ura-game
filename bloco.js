@@ -6,6 +6,7 @@ class bloco {
         this.h = h;
         this.text = text;
         this.tam = 80;
+        this.complemento = 0;
     }
 
     display() {
@@ -14,12 +15,13 @@ class bloco {
         if(this.text == "While"){
             fill("#F7C6D5");
             noStroke();
-            rect(this.x, this.y, this.w, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x, this.y, this.w + this.complemento, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
             rect(this.x - this.x/10, this.y, this.h, this.tam, 20, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
-            rect(this.x - this.x/10, this.y+this.tam, this.w + this.x/10, this.h/2, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y+this.tam, this.w + this.x/10 + this.complemento, this.h/2, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
 
 
             circle(this.x + this.w/3 , this.y + this.h , 20)
+            circle(this.x + this.w/5 , this.y + this.tam + this.h/2 , 20)
             fill(255); // Cor branca do texto
                 
             circle(this.x +this.w/5, this.y, 20);
@@ -76,6 +78,7 @@ class blocoManager {
         this.novoX = 30;
         this.novoY = 250;
         this.whileBloco = null;
+        this.addInWhile = true;
         this.contador = 40;
     }
 
@@ -91,7 +94,7 @@ class blocoManager {
                 }
 
                 // Guarda o tipo e o próprio bloco no sequence
-                this.sequence.push({tipo: text, x: x, y: y});
+                
             }
         }
     }
@@ -114,6 +117,8 @@ class blocoManager {
 
                 fill("#F7C6D5"); // Cor rosa para o conector inferior
                 circle(x+1, y, 20);
+                circle(x+1, y + this.whileBloco.tam - 40, 20);
+                circle(x-24, y + this.whileBloco.tam - 20, 20);
             
                 fill(255); // Cor branca para o conector superior
                 circle(x-24, y-40, 20);
@@ -152,25 +157,59 @@ class blocoManager {
     }
 
     addblocoAtPosition(x, y) {
-        if (y > 225 && x < 540 - 150 && this.blocoAtual) {
-            if (this.sequence.length > 0) {
-                let ultimoBloco = this.sequence[this.sequence.length - 1];
-                if(ultimoBloco.y + 80 >= 750){
-                    this.novoX += 220;
-                    this.novoY = 250;
-                } else {
-                    this.novoY = ultimoBloco.y + 40;
+        console.log(x, y);
+        if(y > 225){
+            if(!this.whileBloco || !this.addInWhile){
+                if (x < 540 - 150 && this.blocoAtual) {
+                    if (this.sequence.length > 0) {
+                        let ultimoBloco = this.sequence[this.sequence.length - 1];
+                        if(ultimoBloco.y + 80 >= 750){
+                            this.novoX += 220;
+                            this.novoY = 250;
+                        } else {
+                            this.novoY = ultimoBloco.y + 40;
+                        }
+                    }
+
+                    console.log("primeiro")
+                    this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX, y: this.novoY});
                 }
-            }
-            if(this.whileBloco){
-                this.addbloco(this.novoX+25, this.novoY, 180, 40, this.blocoAtual);
-                this.whileBloco.tam = 40 + this.contador;
-                this.contador += 40;
+                
             } else {
-                this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+                this.whileBloco.complemento = 25;
+                if ((y > this.whileBloco.y && y < this.whileBloco.y  + this.whileBloco.tam) && x < 540 - 150 && this.blocoAtual && this.addInWhile) {
+                    let ultimoBloco = this.sequence[this.sequence.length - 1];
+                    if(ultimoBloco.y + 80 >= 750){
+                        this.novoX += 220;
+                        this.novoY = 250;
+                    } else {
+                        this.novoY = ultimoBloco.y + 40;
+                    }
+                    
+                    this.addbloco(this.novoX+25, this.novoY, 180, 40, this.blocoAtual);
+                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX+25, y: this.novoY});
+                    this.whileBloco.tam = 40 + this.contador;
+                    this.contador += 40;
+                    console.log("segundo")
+                } else if(y > this.whileBloco.y + this.whileBloco.tam && x < 540 - 150){
+                    this.addInWhile = false;
+                    console.log("terceiro")
+                    let ultimoBloco = this.sequence[this.sequence.length - 1];
+                    if(ultimoBloco.y + 80 >= 750){
+                        this.novoX += 220;
+                        this.novoY = 250;
+                    } else {
+                        this.novoY = ultimoBloco.y + 60;
+                    }
+                    this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
+                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX, y: this.novoY});
+                }
+                
+
             }
-            
         }
+        
     }
 
     concluirInicializacao(){
@@ -188,6 +227,7 @@ class blocoManager {
         this.movements = [];
         this.novoX = 30;
         this.novoY = 250;
+        this.addInWhile = true;
     }
 
     getMovementSequence(){
