@@ -80,6 +80,8 @@ class blocoManager {
         this.whileBloco = null;
         this.addInWhile = true;
         this.contador = 40;
+        this.whileRep = 1;
+        this.ContadorWhile = 0;
     }
 
     addbloco(x, y, w, h, text) {
@@ -191,6 +193,7 @@ class blocoManager {
                     this.sequence.push({tipo: this.blocoAtual, x: this.novoX+25, y: this.novoY});
                     this.whileBloco.tam = 40 + this.contador;
                     this.contador += 40;
+                    this.ContadorWhile += 1;
                     console.log("segundo")
                 } else if(y > this.whileBloco.y + this.whileBloco.tam && x < 540 - 150){
                     this.addInWhile = false;
@@ -216,6 +219,29 @@ class blocoManager {
         this.inicializacao = true;
     }
 
+    drawWhileRepeat(){
+        if(this.whileBloco){
+            fill('#d1b3e5');
+            circle(this.whileBloco.x + this.whileBloco.h/2 - 4, this.whileBloco.y + 55, 25);
+            textSize(12);
+            fill('white');
+            text(String(this.whileRep), this.whileBloco.x + this.whileBloco.h/2 - 4, this.whileBloco.y + 52);
+        }
+    }
+
+    numWhileRepeat(x, y){
+        if(this.whileBloco){
+            if((x > this.whileBloco.x && x<this.whileBloco.x + this.whileBloco.h) && ( y>this.whileBloco.y+30 && y<this.whileBloco.y + 70)){
+                console.log("Click Funcionou");
+                this.whileRep +=1;
+                return true;
+            }
+        }
+
+    }
+
+
+
     clear() {
         for(let tipo of this.tiposBlocos){
             this.blocos[tipo] = [];
@@ -228,35 +254,38 @@ class blocoManager {
         this.novoX = 30;
         this.novoY = 250;
         this.addInWhile = true;
+        this.whileRep = 1;
+        this.ContadorWhile = 0;
     }
 
     getMovementSequence(){
         this.movements = [];
-        let forwardCount = 0;
+        // let forwardCount = 0;
         
         for(let action of this.sequence){
             let tipo = action.tipo;
             if(tipo == "While"){
-                if(forwardCount > 0){
-                    this.movements.push({type: "move", steps: forwardCount});
-                    forwardCount = 0;
-                }
+                // if(forwardCount > 0){
+                //     this.movements.push({type: "move", steps: forwardCount});
+                //     forwardCount = 0;
+                // }
                 this.movements.push({type: "while", whiletrue: "enquanto"});
             } else if(tipo == "Avançar"){
-                forwardCount++;
+                // forwardCount++;
+                this.movements.push({type: "move", steps: 1});
             } else {
-                if(forwardCount > 0){
-                    this.movements.push({type: "move", steps: forwardCount});
-                    forwardCount = 0;
-                }
+                // if(forwardCount > 0){
+                //     this.movements.push({type: "move", steps: forwardCount});
+                //     forwardCount = 0;
+                // }
                 this.movements.push({type: "rotate", direction: tipo === "Direita" ? "clockwise" : "counterclockwise"});
             }
         }
 
-        if(forwardCount > 0){
-            this.movements.push({type: "move", steps: forwardCount});
-        }
+        // if(forwardCount > 0){
+        //     this.movements.push({type: "move", steps: forwardCount});
+        // }
 
-        return this.movements;
+        return [this.movements, this.ContadorWhile];
     }
 }
