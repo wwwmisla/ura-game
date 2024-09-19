@@ -123,7 +123,7 @@ class Cenario {
     
         // Linha divisória horizontal da UI
         strokeWeight(3);
-        line(0, 225, 539, 225);
+        line(0, 235, 539, 235);
     
         strokeWeight(2); // Resetar o peso da linha para o padrão
     }

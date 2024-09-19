@@ -22,12 +22,17 @@ let fase1 = {
     init: function () {
         // Tamanho dos blocos e dimensões do grid
         let tamanhoBloco = 75;
-        let numLinhas = Math.floor(900 / tamanhoBloco); 
-        let numColunas = Math.floor(1440 / tamanhoBloco); 
-    
+        let numLinhas = 12;
+        let numColunas = 12;
+
+        // let numLinhas = Math.floor(900 / tamanhoBloco);
+        // let numColunas = Math.floor(1440 / tamanhoBloco);
+
+        // console.log(`Linhas: ${numLinhas}, Colunas: ${numColunas}`);
+
         // Inicializa o cenário
         this.cenario = new Cenario(tamanhoBloco, numLinhas, numColunas);
-    
+
         // Função para garantir que o robo/tesouro caia em uma célula livre
         const posicaoLivre = () => {
             let x, y;
@@ -37,21 +42,21 @@ let fase1 = {
             } while (this.cenario.grid[y][x] !== 0); // Verifica se a célula é um caminho (0)
             return [x * tamanhoBloco + 35 + 540, y * tamanhoBloco + 35];
         };
-    
+
         // Posição aleatória do robô em uma célula livre
         [roboX, roboY] = posicaoLivre();
         this.robot = new Robot(roboX, roboY, 75);
-    
+
         this.blocos = new blocoManager();
         this.blocoPadrao();
         this.blocos.concluirInicializacao();
-    
+
         // Posição aleatória do baú em uma célula livre
         [this.eixoX, this.eixoY] = posicaoLivre();
     },
 
     draw: function () {
-        background(255);
+        background("#fff");
         this.cenario.exibirCenario(); // Desenha o cenário
         this.robot.display(); //função que exibe o robo
         image(this.bau, this.eixoX, this.eixoY, 75, 70); //exibe o bau
@@ -76,16 +81,17 @@ let fase1 = {
     },
 
     preload: function () {
-        robotFront = loadImage('images/robot/draft1.svg'); // frente
-        robotLeft = loadImage('images/robot/robot02.svg'); //esquerda
-        robotRight = loadImage('images/robot/robot04.svg'); // direita
-        robotBack = loadImage('images/robot/robot03.svg'); // tras
+        robotImage = loadImage('images/robot/robot01.svg'); // robot
+        // robotFront = loadImage('images/robot/draft1.svg'); // frente
+        // robotLeft = loadImage('images/robot/robot02.svg'); //esquerda
+        // robotRight = loadImage('images/robot/robot04.svg'); // direita
+        // robotBack = loadImage('images/robot/robot03.svg'); // tras
         font = loadFont('fonts/Silkscreen-Bold.ttf');
 
         //this.imgAvancar = loadImage('images/blocos/avancar.png');
         //this.imgEsquerda = loadImage('images/blocos/esquerda.png');
         //this.imgDireita = loadImage('images/blocos/direita.png');
-       //this.imgExecutar = loadImage('images/botoes/executar.png');
+        //this.imgExecutar = loadImage('images/botoes/executar.png');
         //this.imgLimpar = loadImage('images/botoes/limpar.png');
         this.bau = loadImage('images/bau.png');
         this.win_sound = loadSound('audio/winsound.wav');
@@ -103,14 +109,14 @@ let fase1 = {
         if (this.isDrawing) {
             this.isDrawing = false;
             this.blocos.addblocoAtPosition(mouseX, mouseY);
-            
+
         }
     },
 
     displayUI: function () {
-        textSize(12);
-        text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
-        text(`isDrawing: ${this.isDrawing}`, 100, 20);
+        // textSize(12);
+        // text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
+        // text(`isDrawing: ${this.isDrawing}`, 100, 20);
         //text(`tam: ${this.robot.targetPosition}`, 300, 150);
         //text(`move: ${this.robot.isMoving}`, 300, 200);
 
@@ -137,7 +143,7 @@ let fase1 = {
         this.blocos.addbloco(20, 40, 180, 40, "Avançar"); // Forward
         this.blocos.addbloco(240, 40, 180, 40, "Direita"); // Rot 90h | Girar 90° Horário
         this.blocos.addbloco(20, 140, 180, 40, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
-        this.blocos.addbloco(240, 140-20, 180, 40, "While"); // While
+        this.blocos.addbloco(270, 140 - 20, 180, 40, "While"); // While
     },
     habilitarMovimento: function () {
         this.sequenciaDeMovimentos = this.blocos.getMovementSequence();
@@ -153,26 +159,26 @@ let fase1 = {
             this.reinitialize();
             return;
         }
-        
-        
+
+
         this.movimento = this.sequenciaDeMovimentos.shift();
 
         //repete o movimento quando while é detectado
-        if(this.whileDetected == true && this.movimento.type != "while"){
+        if (this.whileDetected == true && this.movimento.type != "while") {
             console.log("While detected");
             this.sequenciaDeMovimentos.push(this.movimento);
             this.verificarVitoria();
         }
 
         //detecta o while
-        if(this.movimento.type == "while"){
+        if (this.movimento.type == "while") {
             this.whileDetected = true;
         }
-        
+
         console.log(this.movimento);
 
         // Verifica se o robô colide com um obstáculo antes de se mover
-        
+
 
         if (this.movimento.type == "move") {
             this.robot.moverPara(this.movimento.steps);
@@ -187,7 +193,7 @@ let fase1 = {
                 this.executeMovementSequence(this.sequenciaDeMovimentos);
             }, 500); // talvez necessario ajustar o delay?
         }
-        if(this.movimento.type == "while"){
+        if (this.movimento.type == "while") {
             this.executeMovementSequence(this.sequenciaDeMovimentos);
         }
     },
