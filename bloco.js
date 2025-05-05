@@ -139,7 +139,7 @@ class blocoManager {
         }
     }
 
-    Arrastar(x, y) {
+    Arrastar(x, y) { //x e y são as coordenadas do mouse
         for(let tipo of this.tiposBlocos){
             if(this.blocos[tipo][0] && this.blocos[tipo][0].isInside(x, y)){
                 this.blocoAtual = tipo;

@@ -21,6 +21,7 @@ let fase1 = {
     whileRep: 0,
     contBlocoWhile: 0,
     quantRept: 0,
+    bloco: null,
 
     init: function () {
         // Tamanho dos blocos e dimensões do grid
@@ -49,6 +50,8 @@ let fase1 = {
         // Posição aleatória do robô em uma célula livre
         [roboX, roboY] = posicaoLivre();
         this.robot = new Robot(roboX, roboY, 75);
+
+        //this.blocosList = new LinkedBlocos(); // Inicializa a lista de blocos
 
         this.blocos = new blocoManager();
         this.blocoPadrao();
@@ -107,9 +110,21 @@ let fase1 = {
 
     mousePressed: function () {
         this.isDrawing = this.blocos.Arrastar(mouseX, mouseY); //retorna valor booleano para determinar criação de bloco provisorio;
+        /*
+        if (mouseY < 225) {
+            bloco = this.blocosList.searchBloco(mouseX, mouseY); //verifica se o click foi dentro do bloco
+
+        }
+        */
     },
 
     mouseReleased: function () {
+        /*
+        if(mouseY < 225){
+            this.blocosList.realocarBlocos(bloco, mouseX, mouseY); //realoca o bloco para a nova posição
+            bloco = null; //zera o bloco para não dar erro na proxima vez que for arrastado
+        }
+        */
         if (this.isDrawing) {
             this.isDrawing = false;
             this.blocos.addblocoAtPosition(mouseX, mouseY);
@@ -201,13 +216,13 @@ let fase1 = {
             //espera o movimento terminar para passar para o proximo
             setTimeout(() => {
                 this.executeMovementSequence(this.sequenciaDeMovimentos);
-            }, 1400 * this.movimento.steps); // talvez necessario ajustar o delay?
+            }, 1600 * this.movimento.steps); // talvez necessario ajustar o delay?
         } else if (this.movimento.type == "rotate") {
             this.robot.rotacionar(this.movimento.direction);
             //espera a rotação terminar para passsar para a proxima
             setTimeout(() => {
                 this.executeMovementSequence(this.sequenciaDeMovimentos);
-            }, 500); // talvez necessario ajustar o delay?
+            }, 600); // talvez necessario ajustar o delay?
         }
         if (this.movimento.type == "while") {
             this.executeMovementSequence(this.sequenciaDeMovimentos);
@@ -215,6 +230,10 @@ let fase1 = {
     },
 
     verificarVitoria: function () {
+        console.log("Posicao do robo", this.robot.x, this.robot.y);
+        console.log("Posicao do bau", this.eixoX, this.eixoY);
+        //imprimindo a posição com a faixa de tolerancia
+        console.log("Posicao do robo com tolerancia", this.robot.x - this.tolerancia[0], this.robot.y - this.tolerancia[1]);
         if ((Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) && this.robot.isMoving == false) {
             console.log("Chegou aqui");
             this.whileDetected = false;
