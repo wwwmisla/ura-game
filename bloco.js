@@ -1,15 +1,19 @@
+// A classe 'bloco' permanece a mesma que você já tem (a versão mais nova)
 class bloco {
-    constructor(x, y, w, h, text) {
+    constructor(x, y, text) {
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.w = 180;
+        this.h = 40;
         this.text = text;
-        this.tam = 80;
-        this.complemento = 0;
+        this.tam = 80; // Para o bloco While
+        this.complemento = 0; // Para o bloco While
+        this.next = null; // Ponteiro para o próximo bloco na LinkedBlocos
     }
 
     display() {
+        // Seu código de display existente aqui...
+        // É importante que ele use this.x e this.y
         //background(255);
         // Desenhar o bloco principal (retângulo com bordas arredondadas)
         if(this.text == "While"){
@@ -23,269 +27,47 @@ class bloco {
             circle(this.x + this.w/3 , this.y + this.h , 20)
             circle(this.x + this.w/5 , this.y + this.tam + this.h/2 , 20)
             fill(255); // Cor branca do texto
-                
+
             circle(this.x +this.w/5, this.y, 20);
-        
+
         } else {
             fill("#3E7FC1");
             noStroke();
             rect(this.x, this.y, this.w, this.h, 20, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
-        
+
             circle(this.x + this.w/5 , this.y + this.h , 20)
             fill(255); // Cor branca do texto
-            
+
             circle(this.x +this.w/5, this.y , 20);
-            
+
         }
 
         textAlign(CENTER, CENTER);
         textSize(12);
-        textFont(font);
-        
-        if(this.text == "Avançar"){
-            text("seguir em frente", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
+        textFont(font); // Certifique-se que 'font' está carregada e definida globalmente ou passada
+
+        // Adaptação para usar this.text diretamente
+        let displayText = "";
+        switch(this.text) {
+            case "Avançar": displayText = "seguir em frente"; break;
+            case "Direita": displayText = "virar à direita"; break;
+            case "Esquerda": displayText = "virar à esquerda"; break;
+            case "While": displayText = "Repetir até que"; break;
+            default: displayText = this.text; // Caso tenha outros blocos
         }
-        if(this.text == "Direita"){
-            text("virar à direita", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
-        }
-        if(this.text == "Esquerda"){
-            text("virar à esquerda", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
-        }
-        if(this.text == "While"){
-            text("Repetir até que", this.x+this.w/2, this.y+this.h/2 - 2); // Posicionamento do texto centralizado no bloco
-        }
-        
+        fill(255); // Cor do texto
+        text(displayText, this.x + this.w / 2, this.y + this.h / 2 - 2);
     }
 
     isInside(px, py) {
-        return px >= this.x && px <= this.x + this.w && py >= this.y && py <= this.y + this.h;
-    }
-}
-
-class blocoManager {
-    constructor() {
-        this.blocos = {
-            "Avançar": [],
-            "Direita": [],
-            "Esquerda": [],
-            "While": []
-        };
-        this.tiposBlocos = ["Avançar", "Direita", "Esquerda","While"];
-        this.blocoAtual = null;
-        this.sequence = [];
-        this.inicializacao = false;
-        this.movements = [];
-        this.novoX = 30;
-        this.novoY = 250;
-        this.whileBloco = null;
-        this.addInWhile = true;
-        this.contador = 40;
-        this.whileRep = 1;
-        this.ContadorWhile = 0;
-    }
-
-    addbloco(x, y, w, h, text) {
-        if (this.tiposBlocos.includes(text)) {
-            let novoBloco = new bloco(x, y, w, h, text);
-            this.blocos[text].push(novoBloco);
-            
-            if (this.inicializacao) {
-                // Armazena a referência ao bloco se for "While"
-                if (text === "While") {
-                    this.whileBloco = novoBloco;
-                }
-
-                // Guarda o tipo e o próprio bloco no sequence
-                
-            }
+        // Ajuste para blocos 'While' se a área clicável for diferente
+        let checkWidth = this.w;
+        let checkHeight = this.h;
+        if (this.text === "While") {
+             // Considere a área total do bloco While se necessário
+             // checkWidth = this.w + this.complemento;
+             // checkHeight = this.h + this.tam + this.h/2; // Aproximado
         }
-    }
-
-    displayblocos() {
-        for(let tipo of this.tiposBlocos){
-            for(let bloco of this.blocos[tipo]){
-                bloco.display();
-            }
-        }
-        this.displayConnectors();
-    }
-
-    displayConnectors() {
-        for (let i = this.sequence.length - 1; i >= 0; i--) {
-            let bloco = this.sequence[i];
-            if(bloco.tipo === "While"){
-                let x = bloco.x + 180/3;
-                let y = bloco.y + 40;
-
-                fill("#F7C6D5"); // Cor rosa para o conector inferior
-                circle(x+1, y, 20);
-                circle(x+1, y + this.whileBloco.tam - 40, 20);
-                circle(x-24, y + this.whileBloco.tam - 20, 20);
-            
-                fill(255); // Cor branca para o conector superior
-                circle(x-24, y-40, 20);
-
-            } else {
-                let x = bloco.x + 180/5;
-                let y = bloco.y;
-
-                fill("#3E7FC1"); // Cor azul para o conector inferior
-                circle(x, y + 40, 20);
-            
-                fill(255); // Cor branca para o conector superior
-                circle(x, y, 20);
-            }
-            
-        }
-    }
-
-    Arrastar(x, y) { //x e y são as coordenadas do mouse
-        for(let tipo of this.tiposBlocos){
-            if(this.blocos[tipo][0] && this.blocos[tipo][0].isInside(x, y)){
-                this.blocoAtual = tipo;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    previewbloco(x, y) {
-        if(this.blocoAtual){
-            rect(x, y, 200, 40);
-            textSize(14);
-            textAlign(CENTER, CENTER);
-            text(this.blocoAtual, x + 180/2, y + 40/2);
-        }
-    }
-
-    addblocoAtPosition(x, y) {
-        console.log(x, y);
-        if(y > 225){
-            if(!this.whileBloco || !this.addInWhile){
-                if (x < 540 - 150 && this.blocoAtual) {
-                    if (this.sequence.length > 0) {
-                        let ultimoBloco = this.sequence[this.sequence.length - 1];
-                        if(ultimoBloco.y + 80 >= 750){
-                            this.novoX += 220;
-                            this.novoY = 250;
-                        } else {
-                            this.novoY = ultimoBloco.y + 40;
-                        }
-                    }
-
-                    console.log("primeiro")
-                    this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
-                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX, y: this.novoY});
-                }
-                
-            } else {
-                this.whileBloco.complemento = 25;
-                if ((y > this.whileBloco.y && y < this.whileBloco.y  + this.whileBloco.tam) && x < 540 - 150 && this.blocoAtual && this.addInWhile) {
-                    let ultimoBloco = this.sequence[this.sequence.length - 1];
-                    if(ultimoBloco.y + 80 >= 750){
-                        this.novoX += 220;
-                        this.novoY = 250;
-                    } else {
-                        this.novoY = ultimoBloco.y + 40;
-                    }
-                    
-                    this.addbloco(this.novoX+25, this.novoY, 180, 40, this.blocoAtual);
-                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX+25, y: this.novoY});
-                    this.whileBloco.tam = 40 + this.contador;
-                    this.contador += 40;
-                    this.ContadorWhile += 1;
-                    console.log("segundo")
-                } else if(y > this.whileBloco.y + this.whileBloco.tam && x < 540 - 150){
-                    this.addInWhile = false;
-                    console.log("terceiro")
-                    let ultimoBloco = this.sequence[this.sequence.length - 1];
-                    if(ultimoBloco.y + 80 >= 750){
-                        this.novoX += 220;
-                        this.novoY = 250;
-                    } else {
-                        this.novoY = ultimoBloco.y + 60;
-                    }
-                    this.addbloco(this.novoX, this.novoY, 180, 40, this.blocoAtual);
-                    this.sequence.push({tipo: this.blocoAtual, x: this.novoX, y: this.novoY});
-                }
-                
-
-            }
-        }
-        
-    }
-
-    concluirInicializacao(){
-        this.inicializacao = true;
-    }
-
-    drawWhileRepeat(){
-        if(this.whileBloco){
-            fill('#d1b3e5');
-            circle(this.whileBloco.x + this.whileBloco.h/2 - 4, this.whileBloco.y + 55, 25);
-            textSize(12);
-            fill('white');
-            text(String(this.whileRep), this.whileBloco.x + this.whileBloco.h/2 - 4, this.whileBloco.y + 52);
-        }
-    }
-
-    numWhileRepeat(x, y){
-        if(this.whileBloco){
-            if((x > this.whileBloco.x && x<this.whileBloco.x + this.whileBloco.h) && ( y>this.whileBloco.y+30 && y<this.whileBloco.y + 70)){
-                console.log("Click Funcionou");
-                this.whileRep +=1;
-                return true;
-            }
-        }
-
-    }
-
-
-
-    clear() {
-        for(let tipo of this.tiposBlocos){
-            this.blocos[tipo] = [];
-        }
-        this.contador = 40;
-        this.whileBloco = null;
-        this.blocoAtual = null;
-        this.sequence = [];
-        this.movements = [];
-        this.novoX = 30;
-        this.novoY = 250;
-        this.addInWhile = true;
-        this.whileRep = 1;
-        this.ContadorWhile = 0;
-    }
-
-    getMovementSequence(){
-        this.movements = [];
-        // let forwardCount = 0;
-        
-        for(let action of this.sequence){
-            let tipo = action.tipo;
-            if(tipo == "While"){
-                // if(forwardCount > 0){
-                //     this.movements.push({type: "move", steps: forwardCount});
-                //     forwardCount = 0;
-                // }
-                this.movements.push({type: "while", whiletrue: "enquanto"});
-            } else if(tipo == "Avançar"){
-                // forwardCount++;
-                this.movements.push({type: "move", steps: 1});
-            } else {
-                // if(forwardCount > 0){
-                //     this.movements.push({type: "move", steps: forwardCount});
-                //     forwardCount = 0;
-                // }
-                this.movements.push({type: "rotate", direction: tipo === "Direita" ? "clockwise" : "counterclockwise"});
-            }
-        }
-
-        // if(forwardCount > 0){
-        //     this.movements.push({type: "move", steps: forwardCount});
-        // }
-
-        return [this.movements, this.ContadorWhile];
+        return px >= this.x && px <= this.x + checkWidth && py >= this.y && py <= this.y + checkHeight;
     }
 }
