@@ -20,25 +20,30 @@ class bloco {
             fill("#F7C6D5");
             noStroke();
             rect(this.x, this.y, this.w + this.complemento, this.h, 0, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
-            rect(this.x - this.x/10, this.y, this.h, this.tam, 20, 0, 0, 0); // (x, y, largura, altura, raio de bordas arredondadas)
+            rect(this.x - this.x/10, this.y, this.h - 12, this.tam, 20, 0, 0, 0);
             rect(this.x - this.x/10, this.y+this.tam, this.w + this.x/10 + this.complemento, this.h/2, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
 
-
-            circle(this.x + this.w/3 , this.y + this.h , 20)
-            circle(this.x + this.w/5 , this.y + this.tam + this.h/2 , 20)
-            fill(255); // Cor branca do texto
-
             circle(this.x +this.w/5, this.y, 20);
-
+            
+            fill(255); // Cor branca do texto
+            circle(this.x + this.w/5 , this.y + this.h , 20)
+            circle(this.x + this.w/5 , this.y + this.tam + this.h/2 , 20)
+        
+        } else if(this.text === "EndWhile") {
+            fill("#3E7FC1");
+            rect(this.x - this.x/10, this.y, this.w + this.x/10 + this.complemento, this.h, 0, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
+            circle(this.x + this.w/5 , this.y, 20)
+            fill(255);
+            circle(this.x + this.w/5 , this.y + this.h/2 + 10 , 20)
         } else {
             fill("#3E7FC1");
             noStroke();
             rect(this.x, this.y, this.w, this.h, 20, 0, 0, 20); // (x, y, largura, altura, raio de bordas arredondadas)
-
-            circle(this.x + this.w/5 , this.y + this.h , 20)
-            fill(255); // Cor branca do texto
-
             circle(this.x +this.w/5, this.y , 20);
+            
+            fill(255); // Cor branca do texto
+            circle(this.x + this.w/5 , this.y + this.h , 20)
+            
 
         }
 
@@ -53,7 +58,7 @@ class bloco {
             case "Direita": displayText = "virar à direita"; break;
             case "Esquerda": displayText = "virar à esquerda"; break;
             case "While": displayText = "Repetir até que"; break;
-            default: displayText = this.text; // Caso tenha outros blocos
+            default: displayText = ""; // Caso tenha outros blocos
         }
         fill(255); // Cor do texto
         text(displayText, this.x + this.w / 2, this.y + this.h / 2 - 2);

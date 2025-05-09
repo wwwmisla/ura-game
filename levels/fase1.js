@@ -158,7 +158,8 @@ let fase1 = {
     },
 
     mousePressed: function () {
-        // 1. Verificar clique em Templates
+        // 1. Verificar clique em Templates (os blocos padrão)
+        // Aqui você pode usar o método isInside para verificar se o clique foi dentro de um template
         for (let i = 0; i < this.templateBlocks.length; i++) {
             let template = this.templateBlocks[i];
             if (template.isInside(mouseX, mouseY)) {
@@ -175,6 +176,11 @@ let fase1 = {
              let blocoClicado = this.blocosList.SearchBloco(mouseX, mouseY);
              if (blocoClicado !== null) {
                  this.draggingSequenceBlock = blocoClicado; // Guarda a REFERÊNCIA
+                 if (this.draggingSequenceBlock.text === "EndWhile" || this.draggingSequenceBlock.text === "While") {
+                     console.log("Clicou no bloco EndWhile, não pode arrastar.");
+                     this.draggingSequenceBlock = null; // Reseta o estado
+                     return; // Não faz nada se clicou no EndWhile
+                 }
                  // Calcula o offset para o bloco não pular para o cursor
                  this.offsetX = mouseX - this.draggingSequenceBlock.x;
                  this.offsetY = mouseY - this.draggingSequenceBlock.y;
@@ -197,7 +203,7 @@ let fase1 = {
                }
             console.log("Soltando template:", this.draggingTemplateType, "em", mouseX, mouseY);
             // Adiciona um NOVO bloco à lista na posição Y do mouse
-            this.blocosList.addNovoBlocoNaPosicao(mouseY, this.draggingTemplateType);
+            this.blocosList.addNovoBlocoNaPosicao(mouseX,mouseY, this.draggingTemplateType);
             this.draggingTemplateType = null; // Reseta o estado
         }
         // 2. Soltando um Bloco da Sequência

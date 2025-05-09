@@ -4,9 +4,8 @@ class LinkedBlocos {
     constructor() {
         this.head = null;
         this.initialX = 30; // Posição X padrão para blocos na sequência
-            // initialY não é mais tão relevante aqui, pois a posição Y
-            // será determinada pela inserção ou realocação.
-        this.size = 0;
+        this.size = 0; // Tamanho da lista ligada
+        this.hasMultipleColumns = false; // Flag para indicar se há múltiplas colunas
     }
 
     // --- MÉTODO NOVO: Limpar a lista ---
@@ -17,6 +16,7 @@ class LinkedBlocos {
     clear() {
         this.head = null;
         this.size = 0;
+        this.hasMultipleColumns = false; // Reseta a flag de múltiplas colunas
         console.log("Lista de blocos limpa.");
     }
 
@@ -28,22 +28,9 @@ class LinkedBlocos {
         let current = this.head;
         while (current !== null) {
             current.display();
-            // Poderíamos adicionar a lógica de desenhar conectores aqui se necessário,
-            // iterando pela lista e desenhando linhas/círculos entre current e current.next.
-            // Exemplo simples de conector (ajustar coordenadas e estilo):
-            /*
-            if (current.next !== null) {
-                stroke(0); // Cor do conector
-                strokeWeight(2);
-                line(current.x + current.w / 2, current.y + current.h,
-                     current.next.x + current.next.w / 2, current.next.y);
-                noStroke();
-            }
-            */
             current = current.next;
         }
     }
-
     // --- MÉTODO NOVO/ADAPTADO: Adicionar um NOVO bloco baseado na posição do mouse ---
     /**
      * @description Adiciona um NOVO bloco com o texto especificado na posição Y mais próxima
@@ -52,44 +39,95 @@ class LinkedBlocos {
      * @param {number} mouseY - A coordenada Y onde o mouse foi solto.
      * @param {string} text - O texto (tipo) do bloco a ser adicionado.
      */
-    addNovoBlocoNaPosicao(mouseY, text) {
+    addNovoBlocoNaPosicao(mouseX, mouseY, text) {
+        // Verifica se já existem múltiplas colunas
+        const multipleColumns = this.hasMultipleColumns
 
-        // 2. Cria o novo bloco (posição Y será ajustada)
-        // Usamos uma Y temporária (pode ser mouseY ou 0) pois será recalculada.
-        const newBloco = new bloco(this.initialX, 0, text);
+        // Define a coluna alvo (targetX) com base em mouseX apenas se múltiplas colunas existirem
+        let targetX = this.initialX;
+        if (multipleColumns && mouseX > this.initialX + 100) { // 100 é a metade da largura entre colunas
+            targetX = this.initialX + 200; // Assume que a segunda coluna está a 200 unidades
+        }
 
-        // 3. Encontra a posição de inserção
+        // Cria o novo bloco
+        const newBloco = new bloco(targetX, 0, text);
+
+        // Encontra a posição de inserção na coluna alvo
         let current = this.head;
         let prev = null;
 
-        // Percorre a lista até encontrar um bloco cuja posição Y seja MAIOR que mouseY
-        // ou até o final da lista.
-        //tambem precisamos verificar se o mouse esta na segunda coluna, que vai ocorrer quando estiver cheio de blocos na primeira coluna
-        
-        while (current !== null && current.y + current.h / 2 < mouseY) {
-             // Usamos o centro do bloco (y + h/2) para uma melhor sensação de "encaixe"
+        while (current !== null && (current.x !== targetX || current.y + current.h / 2 < mouseY)) {
             prev = current;
             current = current.next;
         }
 
-        // 4. Insere o bloco na lista
+        // Insere o bloco na lista
         if (prev === null) {
-            // Inserir no início da lista
             newBloco.next = this.head;
             this.head = newBloco;
         } else {
-            // Inserir após 'prev'
             newBloco.next = prev.next;
             prev.next = newBloco;
         }
         this.size++;
 
-        // 5. Atualiza as posições Y a partir do bloco inserido
-        // Define a posição Y inicial do novo bloco com base no anterior ou no início
-        newBloco.y = (prev === null) ? 250 : prev.y + prev.h; // 250 é um valor inicial para o primeiro bloco
+        if(text == "While"){
+            this.addNovoBlocoNaPosicao(mouseX, mouseY+50, "EndWhile");
+        }
+
+        // Define a posição Y do novo bloco
+        newBloco.y = (prev === null || prev.x !== targetX) ? 250 : prev.y + prev.h;
         this.updateSubsequentPositions(this.head);
 
         console.log(`Bloco "${text}" adicionado.`);
+    }
+
+    // Função auxiliar para calcular a altura total de um grupo While
+    getWhileGroupHeight(startBloco) {
+        let current = startBloco;
+        let height = 0;
+        let whileCount = 0;
+        while (current !== null) {
+            if (current.text === "While") {
+                whileCount++;
+            } else if (current.text === "EndWhile") {
+                whileCount--;
+                if (whileCount === 0) {
+                    height += current.h;
+                    break;
+                }
+            }
+            height += current.h;
+            current = current.next;
+        }
+        return height;
+    }
+
+    //logica para verificar os blocos que estão entre o while e o endwhile
+    verificarBlocosWhile(){
+        let current = this.head;
+        let contadorWhile = 0;
+        let whileBloco = null;
+
+        while (current !== null) {
+            if (current.text === "While") {
+                contadorWhile++;
+                whileBloco = current;
+                whileBloco.tam = 80;
+            } else if (current.text === "EndWhile" && contadorWhile > 0) {
+                current.h = 20;
+                return;
+            } else  if (contadorWhile > 0) {
+                console.log("Bloco entre While e EndWhile encontrado:", current.text);
+                if (contadorWhile > 1) {
+                    whileBloco.tam += 40;
+                }
+                contadorWhile++;
+            }
+            current = current.next;
+        }
+
+    
     }
 
     /**
@@ -100,25 +138,64 @@ class LinkedBlocos {
     updateSubsequentPositions(startBloco) {
         let current = startBloco;
         while (current !== null && current.next !== null) {
-            //verifica se os blocos ultrapassam o limite da tela
-            //se sim, uma nova coluna é criada
-            console.log("Current y + h "+ (current.y + current.h));
-            if (current.y + current.h > 700){
-                console.log("Criando nova coluna");
-                current.next.x = this.initialX + 200; // Cria nova coluna
-                current.next.y = 250; // Reinicia a posição Y na nova coluna
-            } else {
-                current.next.y = current.y + current.h; // Mantém a posição Y ajustada
-                current.next.x = current.x;
+            let nextY = current.y + current.h;
+            let nextX = current.x;
+
+            if (current.text === "While") {
+                if (current.next.text === "EndWhile") {
+                    nextY = current.y + current.tam;
+                }
             }
-            
+
+            if (current.next.text === "While") {
+                let groupHeight = this.getWhileGroupHeight(current.next);
+                if (nextY + groupHeight > 700) {
+                    console.log("Movendo grupo While para nova coluna");
+                    this.hasMultipleColumns = true;
+                    nextX = this.initialX + 230;
+                    nextY = 250;
+                }
+            } else {
+                if (nextY + current.next.h > 700) {
+                    console.log("Criando nova coluna para bloco individual");
+                    this.hasMultipleColumns = true;
+                    nextX = this.initialX + 230;
+                    nextY = 250;
+                }
+            }
+
+            current.next.x = nextX;
+            current.next.y = nextY;
+
+            if (current.next.text === "While") {
+                let whileCurrent = current.next;
+                let internalY = whileCurrent.y + whileCurrent.h;
+                while (whileCurrent !== null && whileCurrent.text !== "EndWhile") {
+                    whileCurrent = whileCurrent.next;
+                    if (whileCurrent) {
+                        whileCurrent.x = nextX;
+                        whileCurrent.y = internalY;
+                        internalY += whileCurrent.h;
+                    }
+                }
+                if (whileCurrent && whileCurrent.text === "EndWhile") {
+                    whileCurrent.x = nextX;
+                    whileCurrent.y = internalY;
+                }
+            }
+            this.verificarBlocosWhile();
             current = current.next;
         }
+        
     }
 
-    // --- Métodos existentes (SearchBloco, removeBloco, realocarBlocos, _collectYs, _applyYs) ---
-    // Mantidos como estão no seu código original, pois lidam com
-    // a busca, remoção e REORDENAÇÃO de blocos JÁ EXISTENTES na lista.
+    // bbbyyy
+    // lllllllllll
+
+    /**
+     * @description Busca um bloco na lista ligada que contém as coordenadas (x, y).
+     * @param {bloco} blocoASerIgnorado - Bloco a ser ignorado na busca.
+     */
 
     SearchBloco(x, y, blocoASerIgnorado) {
         let current = this.head;
@@ -133,6 +210,11 @@ class LinkedBlocos {
         }
         return null;
     }
+
+    /**
+     * @description Remove um bloco da lista ligada.
+     * @param {bloco} bloco - O bloco a ser removido. 
+     */
 
     removeBloco(bloco) {
         console.log("Removendo bloco:", bloco.text);
@@ -160,7 +242,14 @@ class LinkedBlocos {
         }
         
     }
-
+    // --- Método para realocar blocos na lista ligada ---
+    /** 
+     * @description Realoca um bloco na lista ligada, mantendo a ordem correta.
+     * @param {bloco} bloco - O bloco a ser realocado.
+     * @param {number} my - A coordenada Y onde o bloco foi solto.
+     * @param {number} mx - A coordenada X onde o bloco foi solto.
+     * @var {bloco} before - a referencia do bloco a qual queremos colocar o novo bloco no local do qual o bloco será inserido.
+    */
     realocarBlocos(bloco, my, mx) {
 
         if (!bloco || !this.head) return;
@@ -220,18 +309,12 @@ class LinkedBlocos {
 
         }
 
-        //aaaaa
-        //bbbb
-        //cccc
-
-         //--- Alternativa: Fazer os blocos se ajustarem verticalmente ---
-         //Em vez de _applyYs(ys), você poderia recalcular todas as posições:
+        //atualiza a lista para manter a ordem correta de visualização
          if (this.head) {
             this.head.x = this.initialX; // Define a posição X inicial
             this.head.y = 250; // Define a posição do primeiro
             this.updateSubsequentPositions(this.head); // Ajusta os seguintes
          }
-        // Escolha o comportamento que preferir!
     }
 
 
@@ -254,7 +337,8 @@ class LinkedBlocos {
         return current;
     }
 
-    // --- Método para obter a sequência de movimentos (Adaptar do antigo blocoManager) ---
+
+    // --- Método para obter a sequência de movimentos ---
     /**
      * @description Percorre a lista ligada e gera a sequência de movimentos para o robô.
      * @returns {Array} Uma lista de objetos representando os movimentos.
