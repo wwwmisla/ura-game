@@ -14,6 +14,14 @@ let fase1 = {
     offsetX: 0, // Para manter a posição relativa do mouse dentro do bloco ao arrastar
     offsetY: 0,
 
+    // ======= assets =======
+    sprite_andar_direita: [],
+    sprite_andar_baixo: [],
+    sprite_andar_cima: [],
+    sprite_rotate_baixo: [],
+    sprite_rotate_cima: [],
+    sprite_rotate_direita_esquerda: [],
+
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
@@ -30,8 +38,8 @@ let fase1 = {
     whileDetected: false,
     movimento: null,
     sequenciaDeMovimentos: null,
-    whileRep: 0, // Você precisará de uma forma de definir isso (talvez clicando no bloco While?)
-    contBlocoWhile: 0, // Contagem de blocos *dentro* de um while (lógica a implementar se necessário)
+    whileRep: 0, 
+    contBlocoWhile: 0, 
     quantRept: 0,
 
     init: function () {
@@ -102,6 +110,12 @@ let fase1 = {
             text(this.draggingTemplateType, mouseX, mouseY); // Texto no centro
         }
 
+
+        fill(0);
+        textSize(14);
+        text("MouseX: " + mouseX, 70, 20);
+        text("MouseY: " + mouseY, 70, 40);
+
          // --- Desenhar Arrastando Bloco da Sequência ---
          // O bloco em si já será desenhado em sua posição atual pela blocosList.display().
          // Se você quiser que ele siga o mouse *durante* o arrasto, você precisaria
@@ -118,11 +132,7 @@ let fase1 = {
         this.displayUI();
 
         //mostrando as coodernadas do mouse para debug
-        fill(0);
-        textSize(14);
-        text("MouseX: " + mouseX, 70, 20);
-        text("MouseY: " + mouseY, 70, 40);
-
+        
         if (this.robot.isMoving) {
              this.robot.move(false);
              if (this.cenario.verificarColisao(this.robot)) {
@@ -139,22 +149,43 @@ let fase1 = {
     preload: function () {
         // Seu código de preload existente...
         // Certifique-se que robotImage e font estão carregados
-         robotImage = loadImage('images/robot/robot01.svg');
-         font = loadFont('fonts/Silkscreen-Bold.ttf'); // Exemplo
-         this.bau = loadImage('images/bau.png'); // Exemplo
-         this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
-         // Carregue outras imagens se necessário
+        robotImage = loadImage('assets/urinha/urinha_rotate_cima/urinha_rotate_c1.png');
+        font = loadFont('fonts/Silkscreen-Bold.ttf'); // Exemplo
+        this.bau = loadImage('images/bau.png'); // Exemplo
+        this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
+        // Carregue outras imagens se necessário
+
+        for (let i = 1; i<= 6; i++){
+            this.sprite_andar_direita[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + (i+3) + '.png');
+        }
+        for (let i = 1; i<= 6; i++){
+            this.sprite_andar_baixo[i] = loadImage('assets/urinha/urinha_baixo_andar(x32)/pixil-frame-' + i + '.png');
+        }
+        for (let i = 1; i<= 6; i++){
+            this.sprite_andar_cima[i] = loadImage('assets/urinha/urinha_cima_andar/andar_cima' + i + '.png');
+        }
+        for (let i = 1; i<= 10; i++){
+            this.sprite_rotate_baixo[i] = loadImage('assets/urinha/urinha_rotate_baixo/urinha_rotate_b' + i + '.png');
+        }
+        for (let i = 1; i<= 10; i++){
+            this.sprite_rotate_cima[i] = loadImage('assets/urinha/urinha_rotate_cima/urinha_rotate_c' + i + '.png');
+        }
+        for (let i = 1; i<= 3; i++){
+            this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
+        }
+
     },
 
     mouseClicked: function () {
         this.ButtonClicks();
         // Adicionar lógica para clicar no bloco While para mudar repetições, se necessário
         // Ex:
-        // let clickedBlock = this.blocosList.SearchBloco(mouseX, mouseY);
-        // if (clickedBlock && clickedBlock.text === "While") {
-        //     // Lógica para incrementar whileRep, talvez mostrar um prompt?
-        //     console.log("Clicou no bloco While!");
-        // }
+        let clickedBlock = this.blocosList.SearchBloco(mouseX, mouseY);
+        if (clickedBlock && clickedBlock.text === "While") {
+             // Lógica para incrementar whileRep, talvez mostrar um prompt?
+             clickedBlock.isInside(mouseX, mouseY);
+             console.log("Clicou no bloco While!");
+        }
     },
 
     mousePressed: function () {
@@ -272,11 +303,7 @@ let fase1 = {
         this.executeMovementSequence();
     },
 
-    executeMovementSequence: function () {
-        // Sua lógica de execução de movimentos existente...
-        // Certifique-se que ela consome corretamente o array this.sequenciaDeMovimentos
-        // e interage com this.robot.moverPara e this.robot.rotacionar
-
+    executeMovementSequence: function () {   
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             console.log("Sequência concluída ou vazia.");
             this.verificarVitoria();
@@ -284,25 +311,16 @@ let fase1 = {
             return;
         }
 
-        // Lógica de While (simplificada, adaptar conforme sua necessidade exata)
-        // Esta parte pode precisar de mais refinamento dependendo de como 'while' deve funcionar
-        // if (this.whileDetected && this.quantRept > 0) { ... }
-        // if (this.movimento.type === "while") { ... }
-
         this.movimento = this.sequenciaDeMovimentos.shift(); // Pega o próximo movimento
 
         console.log("Executando:", this.movimento);
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1600 * this.movimento.steps); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1550 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 600); // Ajustar delay
-        } else if (this.movimento.type === "while") {
-            // Lógica para lidar com o início de um while (talvez marcar o início, contar repetições)
-            console.log("Encontrou bloco While - lógica de repetição a implementar");
-            this.executeMovementSequence(); // Continua para o próximo bloco imediatamente
+            setTimeout(() => this.executeMovementSequence(), 850); // Ajustar delay
         } else {
              console.warn("Tipo de movimento desconhecido:", this.movimento.type);
              this.executeMovementSequence(); // Pula para o próximo
@@ -345,12 +363,6 @@ let fase1 = {
         this.whileDetected = false;
         this.movimento = null;
         this.somTocando = false;
-
-        // Reposiciona o robô (se necessário, ou apenas reseta seu estado)
-        // this.robot.resetPosition(); // Se tiver um método assim
-
-        // Não precisa recriar blocos padrão, eles estão em templateBlocks
-        // Não precisa mais de blocoManager.inicializacao = false;
 
         console.log("Fase reinicializada.");
     }

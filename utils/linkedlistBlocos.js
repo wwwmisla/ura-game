@@ -72,6 +72,7 @@ class LinkedBlocos {
         this.size++;
 
         if(text == "While"){
+            newBloco.whileSequence = true;
             this.addNovoBlocoNaPosicao(mouseX, mouseY+50, "EndWhile");
         }
 
@@ -104,8 +105,12 @@ class LinkedBlocos {
     }
 
     //logica para verificar os blocos que estão entre o while e o endwhile
-    verificarBlocosWhile(){
-        let current = this.head;
+    verificarBlocosWhile(blocoWhile) {
+        if (!blocoWhile) {
+            console.error("Bloco While não encontrado.");
+            return;
+        }
+        let current = blocoWhile;
         let contadorWhile = 0;
         let whileBloco = null;
 
@@ -183,7 +188,7 @@ class LinkedBlocos {
                     whileCurrent.y = internalY;
                 }
             }
-            this.verificarBlocosWhile();
+            this.verificarBlocosWhile(current);
             current = current.next;
         }
         
@@ -353,8 +358,32 @@ class LinkedBlocos {
             let tipo = current.text; // Usar o texto do bloco atual
 
             if (tipo === "While") {
-                movements.push({ type: "while", whiletrue: "enquanto" }); // Adapte conforme necessário
-                 // Precisará de lógica adicional para contar blocos dentro do while se isso for relevante
+                //ao inves de passamos o while e ele se tratado depois, vamos apenas colocar repetidas vezes os blocso
+                // entre o while e o endwhile
+                // o numero de vezes que o while vai repetir esta definido dentro da propriedade do proprio bloco while
+
+                //movements.push({ type: "while", whiletrue: "enquanto" }); // Adapte conforme necessário
+                 // Adicionar na lista de movimentos os blocos entre o while e o endwhile repetido whileCont vezes
+                //temos que usar o current porque caso tenha blocos apos a logica do while, ele tem que continuar
+                let var_while = current;
+                let whileCont = current.whileCont;
+                for (let i = 1; i < whileCont; i++) {
+                    let current = var_while.next;
+                    while (current.text !== "EndWhile"){
+                        if (current.text === "Avançar") {
+                            movements.push({ type: "move", steps: 1 });
+                        } else if (current.text === "Direita") {
+                            movements.push({ type: "rotate", direction: "clockwise" });
+                        } else if (current.text === "Esquerda") {
+                            movements.push({ type: "rotate", direction: "counterclockwise" });
+                        }
+                        current = current.next;
+                    }
+                
+                }
+                
+
+
             } else if (tipo === "Avançar") {
                 movements.push({ type: "move", steps: 1 });
             } else if (tipo === "Direita") {
