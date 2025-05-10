@@ -1,3 +1,4 @@
+var debug = true; // Variável de depuração
 class Cenario {
     constructor(tamanhoBloco, numLinhas, numColunas) {
         this.tamanhoBloco = tamanhoBloco;
@@ -81,26 +82,41 @@ class Cenario {
         return tiposObstaculos[indiceAleatorio];
     }
 
-    exibirCenario() {
-        let offsetX = 540; // Largura da UI à esquerda
+    exibirCenario(textura) {
+        let offsetX = 540; // Início da área do cenário em x
+        let larguraCenario = this.numColunas * this.tamanhoBloco;
+        let alturaCenario = this.numLinhas * this.tamanhoBloco;
+        if (debug) {
+            console.log("Largura do cenário: " + larguraCenario);
+            console.log("Altura do cenário: " + alturaCenario);
+            debug = false;
+        }
+        // Dimensões da textura
+        let texturaW = textura.width;
+        let texturaH = textura.height;
+
+        // Preencher a área do cenário com a textura repetida
+        for (let y = 450; y < alturaCenario; y += texturaH) {
+            for (let x = offsetX+450; x < offsetX + larguraCenario; x += texturaW) {
+                image(textura, x, y, texturaW, texturaH);
+            }
+        }
+
+        // Desenhar o grid por cima
         for (let i = 0; i < this.numLinhas; i++) {
             for (let j = 0; j < this.numColunas; j++) {
-                let x = j * this.tamanhoBloco + offsetX; // Ajustar para desenhar a partir da direita
+                let x = j * this.tamanhoBloco + offsetX;
                 let y = i * this.tamanhoBloco;
                 let tipoBloco = this.grid[i][j];
-    
-                // Define as cores para o caminho e a borda
-                let corFundo = "#e8e8e8"; // Usando o dark-30 da paleta
-                let corBorda = "#f7fafc"; // Usando o dark-40 para uma borda bem sutil
-    
-                // Aplicando o fundo para todas as células (caminho e obstáculos)
-                fill(corFundo);
-                stroke(corBorda);
-                strokeWeight(1); // Borda bem fina e sutil
+
+                // Desenhar a borda do grid
+                stroke("#f7fafc"); // Cor da borda sutil
+                strokeWeight(1); // Borda fina
+                noFill();
                 rect(x, y, this.tamanhoBloco, this.tamanhoBloco);
-    
+
+                // Desenhar os obstáculos, se houver
                 if (tipoBloco !== 0) {
-                    // Desenha o obstáculo sobre o fundo
                     let tipoObstaculo = tipoBloco.tipo;
                     if (tipoObstaculo === 'buraco') {
                         this.obstaculos.buraco(x, y, this.tamanhoBloco);
@@ -112,19 +128,19 @@ class Cenario {
                 }
             }
         }
-    
+
         // Linha divisória vertical (azul)
         stroke("#3E7FC1"); // Cor azul
         strokeWeight(3); // Peso da linha maior para destacá-la
         let xInicial = offsetX; // Posição ajustada para a borda esquerda do primeiro bloco
         let yInicial = 0; // Começa no topo
-        let yFinal = this.numLinhas * this.tamanhoBloco; // Vai até a última célula
+        let yFinal = alturaCenario; // Vai até a última célula
         line(xInicial, yInicial, xInicial, yFinal);
-    
+
         // Linha divisória horizontal da UI
         strokeWeight(3);
         line(0, 235, 539, 235);
-    
+
         strokeWeight(2); // Resetar o peso da linha para o padrão
     }
     

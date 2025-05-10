@@ -45,10 +45,10 @@ class LinkedBlocos {
 
         // Define a coluna alvo (targetX) com base em mouseX apenas se múltiplas colunas existirem
         let targetX = this.initialX;
-        if (multipleColumns && mouseX > this.initialX + 100) { // 100 é a metade da largura entre colunas
-            targetX = this.initialX + 200; // Assume que a segunda coluna está a 200 unidades
+        if (multipleColumns && mouseX > this.initialX + 170) { // 100 é a metade da largura entre colunas
+            targetX = this.initialX + 230; // Assume que a segunda coluna está a 200 unidades
         }
-
+        
         // Cria o novo bloco
         const newBloco = new bloco(targetX, 0, text);
 
