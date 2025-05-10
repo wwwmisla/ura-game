@@ -12,7 +12,7 @@ function setup() {
     window.onresize = () => {
         cnv.position((windowWidth - width) / 2, (windowHeight - height) / 2);
     };
-    tela_atual = fase1;
+    tela_atual = menu;
     tela_atual.init();
 }
 
