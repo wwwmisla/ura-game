@@ -21,6 +21,10 @@ let fase1 = {
     sprite_rotate_baixo: [],
     sprite_rotate_cima: [],
     sprite_rotate_direita_esquerda: [],
+    sprite_idle: [],
+
+    //textura
+    textura_background: null,
 
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
@@ -82,7 +86,7 @@ let fase1 = {
 
     draw: function () {
         background("#fff");
-        this.cenario.exibirCenario();
+        this.cenario.exibirCenario(this.textura_background);
         this.robot.display();
         image(this.bau, this.eixoX, this.eixoY, 75, 70); // Use image() para p5.js
 
@@ -153,8 +157,13 @@ let fase1 = {
         font = loadFont('fonts/Silkscreen-Bold.ttf'); // Exemplo
         this.bau = loadImage('images/bau.png'); // Exemplo
         this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
-        // Carregue outras imagens se necessário
-
+        //carregando textura
+        this.textura_background = loadImage('assets/texturas/background_180x180.png');
+        //carregando sprites
+        for (let i = 1; i<=10; i++){
+            this.sprite_idle[i] = loadImage('assets/urinha/urinha_idle/urinha_idle' + i + '.png');
+        }
+        //serve para andar para o urinha para a direita e esquerda(espelhado)
         for (let i = 1; i<= 6; i++){
             this.sprite_andar_direita[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + (i+3) + '.png');
         }
@@ -170,6 +179,7 @@ let fase1 = {
         for (let i = 1; i<= 10; i++){
             this.sprite_rotate_cima[i] = loadImage('assets/urinha/urinha_rotate_cima/urinha_rotate_c' + i + '.png');
         }
+        //serve para rotacionar a urinha para direita e esquerda(espelhado)
         for (let i = 1; i<= 3; i++){
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
         }
@@ -317,10 +327,10 @@ let fase1 = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1550 * this.movimento.steps); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1515 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 850); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 620); // Ajustar delay
         } else {
              console.warn("Tipo de movimento desconhecido:", this.movimento.type);
              this.executeMovementSequence(); // Pula para o próximo
