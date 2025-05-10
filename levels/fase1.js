@@ -1,11 +1,22 @@
+// Assumindo que este código está dentro de um arquivo sketch.js ou similar
+// e que p5.js está sendo usado.
+
 let fase1 = {
     cenario: null,
     robot: null,
-    blocos: null,
-    isDrawing: false,
-    imgAvancar: null,
-    imgEsquerda: null,
-    imgDireita: null,
+    // blocos: null, // Substituído por blocosList e templateBlocks
+    blocosList: null, // Nossa lista ligada para a sequência
+    templateBlocks: [], // Array para guardar os blocos padrão (templates)
+
+    // Variáveis de estado para arrastar/soltar
+    draggingTemplateType: null, // Guarda o 'text' do template sendo arrastado
+    draggingSequenceBlock: null, // Guarda a REFERÊNCIA ao bloco da sequência sendo arrastado
+    offsetX: 0, // Para manter a posição relativa do mouse dentro do bloco ao arrastar
+    offsetY: 0,
+
+    // isDrawing: false, // Substituído por draggingTemplateType !== null
+
+    // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
     imgExecutar: null,
     imgLimpar: null,
     bau: null,
@@ -15,228 +26,332 @@ let fase1 = {
     tolerancia: [3, 12],
     eixoX: 0,
     eixoY: 0,
+    // Propriedades relacionadas à execução (whileDetected, etc.)
     whileDetected: false,
     movimento: null,
     sequenciaDeMovimentos: null,
-    whileRep: 0,
-    contBlocoWhile: 0,
+    whileRep: 0, // Você precisará de uma forma de definir isso (talvez clicando no bloco While?)
+    contBlocoWhile: 0, // Contagem de blocos *dentro* de um while (lógica a implementar se necessário)
     quantRept: 0,
 
     init: function () {
-        // Tamanho dos blocos e dimensões do grid
         let tamanhoBloco = 75;
         let numLinhas = 12;
         let numColunas = 12;
-
-        // let numLinhas = Math.floor(900 / tamanhoBloco);
-        // let numColunas = Math.floor(1440 / tamanhoBloco);
-
-        // console.log(`Linhas: ${numLinhas}, Colunas: ${numColunas}`);
-
-        // Inicializa o cenário
         this.cenario = new Cenario(tamanhoBloco, numLinhas, numColunas);
 
-        // Função para garantir que o robo/tesouro caia em uma célula livre
-        const posicaoLivre = () => {
+        const posicaoLivre = () => { /* ... sua função posicaoLivre ... */
             let x, y;
             do {
                 x = Math.floor(Math.random() * numColunas);
                 y = Math.floor(Math.random() * numLinhas);
-            } while (this.cenario.grid[y][x] !== 0); // Verifica se a célula é um caminho (0)
+            } while (this.cenario.grid[y][x] !== 0);
             return [x * tamanhoBloco + 35 + 540, y * tamanhoBloco + 35];
         };
 
-        // Posição aleatória do robô em uma célula livre
-        [roboX, roboY] = posicaoLivre();
-        this.robot = new Robot(roboX, roboY, 75);
+        let [roboX, roboY] = posicaoLivre();
+        this.robot = new Robot(roboX, roboY, 75); // Assumindo que Robot e Cenario existem
 
-        this.blocos = new blocoManager();
-        this.blocoPadrao();
-        this.blocos.concluirInicializacao();
+        // --- Inicialização da Lista Ligada e Templates ---
+        this.blocosList = new LinkedBlocos(); // Cria a instância da lista ligada
+        this.criarBlocosPadrao();              // Cria os blocos template
 
-        // Posição aleatória do baú em uma célula livre
         [this.eixoX, this.eixoY] = posicaoLivre();
+        console.log("Fase 1 inicializada.");
+    },
+
+    // --- NOVO MÉTODO: Cria os blocos template ---
+    criarBlocosPadrao: function () {
+        this.templateBlocks = []; // Limpa antes de adicionar
+        // Adiciona instâncias de 'bloco' ao array de templates
+        // As posições (x, y) são fixas na área de templates (topo da tela)
+        this.templateBlocks.push(new bloco(20, 40, "Avançar"));
+        this.templateBlocks.push(new bloco(240, 40, "Direita"));
+        this.templateBlocks.push(new bloco(20, 140, "Esquerda"));
+        this.templateBlocks.push(new bloco(270, 120, "While")); // Ajuste Y conforme layout
+        console.log("Blocos padrão criados:", this.templateBlocks);
     },
 
     draw: function () {
         background("#fff");
-        this.cenario.exibirCenario(); // Desenha o cenário
-        this.robot.display(); //função que exibe o robo
-        image(this.bau, this.eixoX, this.eixoY, 75, 70); //exibe o bau
-        this.blocos.displayblocos(); //função que exibe os blocos
-        this.blocos.drawWhileRepeat();
-        this.displayUI(); //função que exibe a interface do usuário
+        this.cenario.exibirCenario();
+        this.robot.display();
+        image(this.bau, this.eixoX, this.eixoY, 75, 70); // Use image() para p5.js
 
-        if (this.isDrawing) {
-            this.blocos.previewbloco(mouseX, mouseY);
+        // --- Desenhar Blocos ---
+        // 1. Desenha os blocos template
+        for (let i = 0; i < this.templateBlocks.length; i++) {
+             this.templateBlocks[i].display();
         }
+
+        // 2. Desenha os blocos da sequência (usando o método da lista)
+        this.blocosList.display();
+
+        // --- Desenhar Preview (Arrastando Template) ---
+        if (this.draggingTemplateType !== null) {
+            // Desenha uma pré-visualização simples do bloco sendo arrastado
+            fill(200, 200, 200, 150); // Cor semi-transparente
+            noStroke();
+            // Usar as dimensões padrão do bloco
+            let previewW = 180;
+            let previewH = 40;
+            rect(mouseX - previewW / 2, mouseY - previewH / 2, previewW, previewH, 10); // Centralizado no mouse, bordas arredondadas
+            fill(0); // Cor do texto
+            textAlign(CENTER, CENTER);
+            textSize(12);
+            text(this.draggingTemplateType, mouseX, mouseY); // Texto no centro
+        }
+
+         // --- Desenhar Arrastando Bloco da Sequência ---
+         // O bloco em si já será desenhado em sua posição atual pela blocosList.display().
+         // Se você quiser que ele siga o mouse *durante* o arrasto, você precisaria
+         // atualizar o this.draggingSequenceBlock.x e this.draggingSequenceBlock.y aqui no draw.
+         if (this.draggingSequenceBlock !== null) {
+             this.draggingSequenceBlock.x = mouseX - this.offsetX;
+             this.draggingSequenceBlock.y = mouseY - this.offsetY;
+             // Nota: Isso fará o bloco se mover visualmente. A lógica de
+             // reordenar na lista só acontece no mouseReleased com realocarBlocos.
+         }
+
+
+        // this.blocos.drawWhileRepeat(); // Precisa ser adaptado se quiser manter
+        this.displayUI();
+
+        //mostrando as coodernadas do mouse para debug
+        fill(0);
+        textSize(14);
+        text("MouseX: " + mouseX, 70, 20);
+        text("MouseY: " + mouseY, 70, 40);
 
         if (this.robot.isMoving) {
-            this.robot.move(false);
-            if (this.cenario.verificarColisao(this.robot)) {
-                console.log("O robô colidiu com um obstáculo!");
-                this.sequenciaDeMovimentos = [];
-                this.whileDetected = false;
-                this.reinitialize(); // Reinicializa se houver colisão
-                this.robot.move(true);
-                return;
-            }
-        }
+             this.robot.move(false);
+             if (this.cenario.verificarColisao(this.robot)) {
+                 console.log("O robô colidiu com um obstáculo!");
+                 this.sequenciaDeMovimentos = [];
+                 this.whileDetected = false;
+                 this.reinitialize(); // Reinicializa se houver colisão
+                 this.robot.move(true); // Reseta posição do robô
+                 return;
+             }
+         }
     },
 
     preload: function () {
-        robotImage = loadImage('images/robot/robot01.svg'); // robot
-        // robotFront = loadImage('images/robot/draft1.svg'); // frente
-        // robotLeft = loadImage('images/robot/robot02.svg'); //esquerda
-        // robotRight = loadImage('images/robot/robot04.svg'); // direita
-        // robotBack = loadImage('images/robot/robot03.svg'); // tras
-        font = loadFont('fonts/Silkscreen-Bold.ttf');
-
-        //this.imgAvancar = loadImage('images/blocos/avancar.png');
-        //this.imgEsquerda = loadImage('images/blocos/esquerda.png');
-        //this.imgDireita = loadImage('images/blocos/direita.png');
-        //this.imgExecutar = loadImage('images/botoes/executar.png');
-        //this.imgLimpar = loadImage('images/botoes/limpar.png');
-        this.bau = loadImage('images/bau.png');
-        this.win_sound = loadSound('audio/winsound.wav');
+        // Seu código de preload existente...
+        // Certifique-se que robotImage e font estão carregados
+         robotImage = loadImage('images/robot/robot01.svg');
+         font = loadFont('fonts/Silkscreen-Bold.ttf'); // Exemplo
+         this.bau = loadImage('images/bau.png'); // Exemplo
+         this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
+         // Carregue outras imagens se necessário
     },
 
     mouseClicked: function () {
-        this.ButtonClicks(); //verifica que botão foi clicado
+        this.ButtonClicks();
+        // Adicionar lógica para clicar no bloco While para mudar repetições, se necessário
+        // Ex:
+        // let clickedBlock = this.blocosList.SearchBloco(mouseX, mouseY);
+        // if (clickedBlock && clickedBlock.text === "While") {
+        //     // Lógica para incrementar whileRep, talvez mostrar um prompt?
+        //     console.log("Clicou no bloco While!");
+        // }
     },
 
     mousePressed: function () {
-        this.isDrawing = this.blocos.Arrastar(mouseX, mouseY); //retorna valor booleano para determinar criação de bloco provisorio;
+        // 1. Verificar clique em Templates (os blocos padrão)
+        // Aqui você pode usar o método isInside para verificar se o clique foi dentro de um template
+        for (let i = 0; i < this.templateBlocks.length; i++) {
+            let template = this.templateBlocks[i];
+            if (template.isInside(mouseX, mouseY)) {
+                this.draggingTemplateType = template.text; // Guarda o TIPO
+                // Não precisa de offset aqui, pois vamos desenhar um preview genérico
+                console.log("Iniciando arrasto do template:", this.draggingTemplateType);
+                return; // Encontrou um template, não precisa checar a sequência
+            }
+        }
+
+        // 2. Verificar clique em Blocos da Sequência
+        // Só checa se não estiver arrastando um template
+        if (this.draggingTemplateType === null) {
+             let blocoClicado = this.blocosList.SearchBloco(mouseX, mouseY);
+             if (blocoClicado !== null) {
+                 this.draggingSequenceBlock = blocoClicado; // Guarda a REFERÊNCIA
+                 if (this.draggingSequenceBlock.text === "EndWhile" || this.draggingSequenceBlock.text === "While") {
+                     console.log("Clicou no bloco EndWhile, não pode arrastar.");
+                     this.draggingSequenceBlock = null; // Reseta o estado
+                     return; // Não faz nada se clicou no EndWhile
+                 }
+                 // Calcula o offset para o bloco não pular para o cursor
+                 this.offsetX = mouseX - this.draggingSequenceBlock.x;
+                 this.offsetY = mouseY - this.draggingSequenceBlock.y;
+                 console.log("Iniciando arrasto do bloco da sequência:", this.draggingSequenceBlock.text);
+                 // Opcional: Remover temporariamente da lista para desenhar por cima?
+                 // Ou apenas garantir que ele seja desenhado por último/com destaque.
+                 // A abordagem de atualizar x,y no draw() é mais simples.
+                 return;
+             }
+        }
     },
 
     mouseReleased: function () {
-        if (this.isDrawing) {
-            this.isDrawing = false;
-            this.blocos.addblocoAtPosition(mouseX, mouseY);
-
+        // 1. Soltando um Template
+        if (this.draggingTemplateType !== null) {
+            if (mouseY < 220) {
+                console.log("Soltou na área de templates, não faz nada.");
+                this.draggingTemplateType = null; // Reseta o estado
+                return; // Não faz nada se soltou na área de templates
+               }
+            console.log("Soltando template:", this.draggingTemplateType, "em", mouseX, mouseY);
+            // Adiciona um NOVO bloco à lista na posição Y do mouse
+            this.blocosList.addNovoBlocoNaPosicao(mouseX,mouseY, this.draggingTemplateType);
+            this.draggingTemplateType = null; // Reseta o estado
+        }
+        // 2. Soltando um Bloco da Sequência
+        else if (this.draggingSequenceBlock !== null) {
+            console.log("Soltando bloco da sequência:", this.draggingSequenceBlock.text, "em", mouseX, mouseY);
+            if (mouseY < 220) {
+                console.log("Soltou na área de templates, removendo bloco da sequência.");
+                // Se soltou na área de templates, remove o bloco da sequência
+                this.blocosList.removeBloco(this.draggingSequenceBlock);
+            }
+            // Realoca o bloco existente na lista, baseado na posição do mouse
+            // A função realocarBlocos vai procurar o bloco 'before' onde soltou
+            // e inserir o 'draggingSequenceBlock' antes dele.
+            this.blocosList.realocarBlocos(this.draggingSequenceBlock, mouseY, mouseX); // Atenção: a função original espera (bloco, my, mx)
+            this.draggingSequenceBlock = null; // Reseta o estado
+            this.offsetX = 0;
+            this.offsetY = 0;
         }
     },
 
     displayUI: function () {
-        // textSize(12);
-        // text(`x: ${mouseX}, y: ${mouseY}`, 400, 20);
-        // text(`isDrawing: ${this.isDrawing}`, 100, 20);
-        //text(`tam: ${this.robot.targetPosition}`, 300, 150);
-        //text(`move: ${this.robot.isMoving}`, 300, 200);
-
-        drawButton(350, 830, 100, 50, "Executar");
-        drawButton(50, 830, 100, 50, "Limpar");
+        // Sua função displayUI existente para desenhar botões, etc.
+        // Exemplo:
+        // drawButton(350, 830, 100, 50, "Executar");
+        // drawButton(50, 830, 100, 50, "Limpar");
+        // Funções auxiliares como drawButton e isClickInside precisam existir
+        fill(0, 102, 153); // Cor Exemplo
+        rect(350, 830, 100, 50); // Botão Executar
+        rect(50, 830, 100, 50); // Botão Limpar
+        fill(255);
+        textAlign(CENTER, CENTER);
+        text("Executar", 400, 855);
+        text("Limpar", 100, 855);
     },
 
     ButtonClicks: function () {
-        //verifica se o click foi dentro do botão limpar
-        if (isClickInside(50, 830, 100, 50)) {
+        // Função isClickInside precisa estar definida em algum lugar
+        const isClickInside = (x, y, w, h) => {
+             return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+        };
+
+        if (isClickInside(50, 830, 100, 50)) { // Botão Limpar
+            console.log("Botão Limpar clicado");
             this.reinitialize();
             this.whileDetected = false;
-            //possivel mudança de nome para evitar confusões, o "true" não significa que o robô está se movendo e sim que está resetando a posição
-            this.robot.move(true);
+            this.robot.move(true); // Reseta posição do robô
         }
-        //verifica se o click foi dentro do botão executar
-        if (isClickInside(350, 830, 100, 50)) {
+        if (isClickInside(350, 830, 100, 50)) { // Botão Executar
+            console.log("Botão Executar clicado");
             this.habilitarMovimento();
             this.somTocando = false;
         }
-        if(this.blocos.numWhileRepeat(mouseX, mouseY)){
+        // Remover a lógica do numWhileRepeat daqui, pois foi movida para mouseClicked (ou pode ser adaptada)
+        /*
+        if(this.blocos.numWhileRepeat(mouseX, mouseY)){ // Lógica antiga
             this.whileRep += 1;
         }
+        */
     },
 
-    blocoPadrao: function () {
-        this.blocos.addbloco(20, 40, 180, 40, "Avançar"); // Forward
-        this.blocos.addbloco(240, 40, 180, 40, "Direita"); // Rot 90h | Girar 90° Horário
-        this.blocos.addbloco(20, 140, 180, 40, "Esquerda"); // Rot 90ah | Girar 90° Anti-Horário
-        this.blocos.addbloco(270, 140 - 20, 180, 40, "While"); // While
-    },
     habilitarMovimento: function () {
-        [this.sequenciaDeMovimentos, this.contBlocoWhile] = this.blocos.getMovementSequence();
+        // Obtem a sequência da lista ligada
+        this.sequenciaDeMovimentos = this.blocosList.getMovementSequence();
+        // Você pode precisar obter contagens ou outras informações aqui também
+        // [this.sequenciaDeMovimentos, this.contBlocoWhile] = this.blocosList.getMovementSequence(); // Se retornar mais dados
         this.executeMovementSequence();
     },
 
     executeMovementSequence: function () {
-        //sequencia completa ou vazia
-        if (this.sequenciaDeMovimentos.length == 0) {
-            console.log(this.robot.x, this.robot.y);
-            console.log(this.eixoX, this.eixoY);
+        // Sua lógica de execução de movimentos existente...
+        // Certifique-se que ela consome corretamente o array this.sequenciaDeMovimentos
+        // e interage com this.robot.moverPara e this.robot.rotacionar
+
+        if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
+            console.log("Sequência concluída ou vazia.");
             this.verificarVitoria();
-            this.reinitialize();
+            // Não chamar reinitialize aqui automaticamente, talvez o usuário queira ver o resultado
             return;
         }
 
+        // Lógica de While (simplificada, adaptar conforme sua necessidade exata)
+        // Esta parte pode precisar de mais refinamento dependendo de como 'while' deve funcionar
+        // if (this.whileDetected && this.quantRept > 0) { ... }
+        // if (this.movimento.type === "while") { ... }
 
-        this.movimento = this.sequenciaDeMovimentos.shift();
+        this.movimento = this.sequenciaDeMovimentos.shift(); // Pega o próximo movimento
 
-        //repete o movimento quando while é detectado
-        if (this.whileDetected == true && this.movimento.type != "while" && this.quantRept > 0) {
-            console.log("While detected");
-            // this.sequenciaDeMovimentos.push(this.movimento);
-            this.sequenciaDeMovimentos.splice(this.contBlocoWhile-1, 0 , this.movimento);
-            console.log(this.sequenciaDeMovimentos);
-            this.quantRept -= 1;
-            console.log(`quantRept: ${this.quantRept}`);
-            this.verificarVitoria();
-        }
+        console.log("Executando:", this.movimento);
 
-        console.log(this.whileRep);
-
-        //detecta o while
-        if (this.movimento.type == "while") {
-            this.whileDetected = true;
-            console.log(`whileRep: ${this.whileRep}`);
-            console.log(`contBlocoWhile: ${this.contBlocoWhile}`);
-            this.quantRept = this.whileRep*this.contBlocoWhile;
-        }
-
-        console.log(this.movimento);
-
-        // Verifica se o robô colide com um obstáculo antes de se mover
-
-
-        if (this.movimento.type == "move") {
-            this.robot.moverPara(this.movimento.steps);
-            //espera o movimento terminar para passar para o proximo
-            setTimeout(() => {
-                this.executeMovementSequence(this.sequenciaDeMovimentos);
-            }, 1400 * this.movimento.steps); // talvez necessario ajustar o delay?
-        } else if (this.movimento.type == "rotate") {
-            this.robot.rotacionar(this.movimento.direction);
-            //espera a rotação terminar para passsar para a proxima
-            setTimeout(() => {
-                this.executeMovementSequence(this.sequenciaDeMovimentos);
-            }, 500); // talvez necessario ajustar o delay?
-        }
-        if (this.movimento.type == "while") {
-            this.executeMovementSequence(this.sequenciaDeMovimentos);
+        if (this.movimento.type === "move") {
+            this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
+            setTimeout(() => this.executeMovementSequence(), 1600 * this.movimento.steps); // Ajustar delay
+        } else if (this.movimento.type === "rotate") {
+            this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
+            setTimeout(() => this.executeMovementSequence(), 600); // Ajustar delay
+        } else if (this.movimento.type === "while") {
+            // Lógica para lidar com o início de um while (talvez marcar o início, contar repetições)
+            console.log("Encontrou bloco While - lógica de repetição a implementar");
+            this.executeMovementSequence(); // Continua para o próximo bloco imediatamente
+        } else {
+             console.warn("Tipo de movimento desconhecido:", this.movimento.type);
+             this.executeMovementSequence(); // Pula para o próximo
         }
     },
 
     verificarVitoria: function () {
-        if ((Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) && this.robot.isMoving == false) {
-            console.log("Chegou aqui");
-            this.whileDetected = false;
+        // Sua lógica de verificação de vitória existente...
+        console.log("Verificando vitória...");
+        console.log("Robô:", this.robot.x, this.robot.y, " Baú:", this.eixoX, this.eixoY);
+        if (!this.robot.isMoving && Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) {
+            console.log("VITÓRIA!");
             this.tela_vitoria();
+        } else {
+            console.log("Ainda não chegou ao baú.");
         }
     },
 
     tela_vitoria: function () {
-        if (!this.somTocando) {
+        // Sua função tela_vitoria existente...
+        if (!this.somTocando && this.win_sound) {
             this.win_sound.play();
             this.somTocando = true;
         }
-        mudanca_tela(tela_winner);
+        mudanca_tela(tela_winner); // Função para mudar de tela/estado
+        console.log("----- PARABÉNS! VOCÊ VENCEU! -----");
+        // Poderia desenhar algo na tela aqui
     },
+
     reinitialize: function () {
+        console.log("Reinicializando fase...");
+        // Limpa a sequência de blocos na lista ligada
+        this.blocosList.clear();
+
+        // Reseta variáveis de estado da execução
         this.whileRep = 0;
         this.contBlocoWhile = 0;
         this.quantRept = 0;
         this.sequenciaDeMovimentos = [];
-        this.blocos.inicializacao = false; //para entender melhor o bloco de inicialização, ver bloco.js e o README
-        this.blocos.clear();
-        this.blocoPadrao();
-        this.blocos.concluirInicializacao();
+        this.whileDetected = false;
+        this.movimento = null;
+        this.somTocando = false;
+
+        // Reposiciona o robô (se necessário, ou apenas reseta seu estado)
+        // this.robot.resetPosition(); // Se tiver um método assim
+
+        // Não precisa recriar blocos padrão, eles estão em templateBlocks
+        // Não precisa mais de blocoManager.inicializacao = false;
+
+        console.log("Fase reinicializada.");
     }
-}
+};
