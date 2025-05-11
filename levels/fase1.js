@@ -113,6 +113,7 @@ let fase1 = {
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
         this.blocosList.display();
+        imageMode(CENTER);
 
         // --- Desenhar Preview (Arrastando Template) ---
         if (this.draggingTemplateType !== null) {
@@ -367,6 +368,7 @@ let fase1 = {
         console.log("Robô:", this.robot.x, this.robot.y, " Baú:", this.eixoX, this.eixoY);
         if (!this.robot.isMoving && Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) {
             console.log("VITÓRIA!");
+            this.robot.robotSound(true);
             this.tela_vitoria();
         } else {
             console.log("Ainda não chegou ao baú.");
@@ -387,7 +389,10 @@ let fase1 = {
     reinitialize: function () {
         console.log("Reinicializando fase...");
         // Limpa a sequência de blocos na lista ligada
+        
         this.blocosList.clear();
+        this.robot.move(true);
+        this.robot.robotSound(true);
 
         // Reseta variáveis de estado da execução
         this.whileRep = 0;
