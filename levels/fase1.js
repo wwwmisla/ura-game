@@ -45,7 +45,7 @@ let fase1 = {
     tela_win: null,
     win_sound: null,
     somTocando: false,
-    tolerancia: [3, 12],
+    tolerancia: [4, 16],
     eixoX: 0,
     eixoY: 0,
     // Propriedades relacionadas à execução (whileDetected, etc.)
@@ -72,7 +72,7 @@ let fase1 = {
         };
 
         let [roboX, roboY] = posicaoLivre();
-        this.robot = new Robot(roboX+2, roboY, 75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(roboX+2, roboY-5, 75); // Assumindo que Robot e Cenario existem
 
         // --- Inicialização da Lista Ligada e Templates ---
         this.blocosList = new LinkedBlocos(); // Cria a instância da lista ligada
@@ -345,7 +345,7 @@ let fase1 = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1500 * this.movimento.steps); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
             setTimeout(() => this.executeMovementSequence(), 602); // Ajustar delay

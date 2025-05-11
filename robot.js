@@ -57,6 +57,9 @@ class Robot {
         this.timeEnteredPotentialIdleState = 0;
         this.isPendingIdle = false;
         this.isIdle = true;
+
+        // novo: armazena a última animação válida
+        this.lastAnim = null;
     }
 
     updateState() {
@@ -90,6 +93,11 @@ class Robot {
      * @returns {object} { spriteArray, maxFrames, useScale, currentAnimSpeed }
      */
     getCurrentAnimation() {
+        // se está aguardando idle, retorna sempre a última animação
+        if (this.isPendingIdle && this.lastAnim) {
+            return this.lastAnim;
+        }
+
         let spriteArray, maxFrames;
         let useScale = false;
         let currentAnimSpeed = this.animationSpeeds.default; // Padrão inicial
@@ -198,7 +206,10 @@ class Robot {
         maxFrames = spriteArray.length - 1;
         if (maxFrames < 1) maxFrames = 1;
 
-        return { spriteArray, maxFrames, useScale, currentAnimSpeed };
+        // antes de retornar, cacheia o resultado
+        const animResult = { spriteArray, maxFrames, useScale, currentAnimSpeed };
+        this.lastAnim = animResult;
+        return animResult;
     }
 
     display() {
@@ -237,6 +248,17 @@ class Robot {
 
     updateAnimation() {
         const animData = this.getCurrentAnimation();
+
+        // se está aguardando o idle, congela frame atual
+        if (this.isPendingIdle) {
+            return;
+        }
+        // restante do idle “estático”
+        if (this.isIdle && animData.maxFrames <= 1) {
+            this.currentFrame = 1;
+            this.frameCount = 0;
+            return;
+        }
 
         if (!animData || !animData.spriteArray || animData.spriteArray.length === 0 || animData.maxFrames === 0) {
             console.warn("updateAnimation: Dados de animação ausentes. Resetando frame.");
