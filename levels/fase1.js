@@ -62,7 +62,7 @@ let fase1 = {
         };
 
         let [roboX, roboY] = posicaoLivre();
-        this.robot = new Robot(roboX, roboY, 75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(roboX+2, roboY, 75); // Assumindo que Robot e Cenario existem
 
         // --- Inicialização da Lista Ligada e Templates ---
         this.blocosList = new LinkedBlocos(); // Cria a instância da lista ligada
@@ -327,10 +327,10 @@ let fase1 = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1515 * this.movimento.steps); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1500 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 620); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 610); // Ajustar delay
         } else {
              console.warn("Tipo de movimento desconhecido:", this.movimento.type);
              this.executeMovementSequence(); // Pula para o próximo

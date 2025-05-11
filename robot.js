@@ -41,8 +41,8 @@ class Robot {
             andar_baixo: 4,
             andar_cima: 4,
             // Velocidades para as animações de rotação
-            rotate_baixo: 3,                // Ex: Animação para virar para baixo
-            rotate_cima: 3,                 // Ex: Animação para virar para cima
+            rotate_baixo: 2.7,                // Ex: Animação para virar para baixo
+            rotate_cima: 2.7,                 // Ex: Animação para virar para cima
             rotate_direita_esquerda: 12,     // Ex: Animação mais rápida para virar de lado
             // Velocidade para a animação de idle
             idle: 8,
