@@ -26,6 +26,16 @@ let fase1 = {
     //textura
     textura_background: null,
 
+
+    //blocos
+
+    blocoDireita: null,
+    blocoEsquerda: null,
+    blocoAvancar: null,
+    blocoWhile_cima: null,
+    blocoWhile_vertical: null,
+    blocoWhile_horizontal: null,
+
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
@@ -78,9 +88,9 @@ let fase1 = {
         // Adiciona instâncias de 'bloco' ao array de templates
         // As posições (x, y) são fixas na área de templates (topo da tela)
         this.templateBlocks.push(new bloco(20, 40, "Avançar"));
-        this.templateBlocks.push(new bloco(240, 40, "Direita"));
+        this.templateBlocks.push(new bloco(270, 40, "Direita"));
         this.templateBlocks.push(new bloco(20, 140, "Esquerda"));
-        this.templateBlocks.push(new bloco(270, 120, "While")); // Ajuste Y conforme layout
+        this.templateBlocks.push(new bloco(270, 120, "While"));
         console.log("Blocos padrão criados:", this.templateBlocks);
     },
 
@@ -183,6 +193,14 @@ let fase1 = {
         for (let i = 1; i<= 3; i++){
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
         }
+
+        //carregando imagem dos blocos
+        this.blocoDireita = loadImage('assets/buttons_command/button_direita.png');
+        this.blocoEsquerda = loadImage('assets/buttons_command/button_esquerda.png');
+        this.blocoAvancar = loadImage('assets/buttons_command/button_frente.png');
+        this.blocoWhile_cima = loadImage('assets/buttons_command/button_repetir1.png');    
+        this.blocoWhile_vertical = loadImage('assets/buttons_command/button_repetir2.png');
+        this.blocoWhile_horizontal = loadImage('assets/buttons_command/button_repetir3.png');
 
     },
 
@@ -330,7 +348,7 @@ let fase1 = {
             setTimeout(() => this.executeMovementSequence(), 1500 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 610); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 602); // Ajustar delay
         } else {
              console.warn("Tipo de movimento desconhecido:", this.movimento.type);
              this.executeMovementSequence(); // Pula para o próximo

@@ -118,15 +118,20 @@ class LinkedBlocos {
             if (current.text === "While") {
                 contadorWhile++;
                 whileBloco = current;
-                whileBloco.tam = 80;
+                whileBloco.tam = 40;
             } else if (current.text === "EndWhile" && contadorWhile > 0) {
                 current.h = 20;
                 return;
             } else  if (contadorWhile > 0) {
                 console.log("Bloco entre While e EndWhile encontrado:", current.text);
                 if (contadorWhile > 1) {
-                    whileBloco.tam += 40;
+                    whileBloco.tam += 30;
+                    
                 }
+                current.x = current.x + 17;
+                current.w = 163;
+                 
+                
                 contadorWhile++;
             }
             current = current.next;
@@ -143,12 +148,17 @@ class LinkedBlocos {
     updateSubsequentPositions(startBloco) {
         let current = startBloco;
         while (current !== null && current.next !== null) {
-            let nextY = current.y + current.h;
+            let nextY = current.y + current.h-10;
             let nextX = current.x;
+            if (current.next.text === "EndWhile" && current.text !== "While") {
+                nextX = current.x - 17;
+            }
+
+            
 
             if (current.text === "While") {
                 if (current.next.text === "EndWhile") {
-                    nextY = current.y + current.tam;
+                    nextY = current.y + current.tam+30;
                 }
             }
 

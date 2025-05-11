@@ -53,7 +53,7 @@ class Robot {
         this.targetPosition = 0;
 
         // Controle de Delay para Animação de Idle
-        this.idleDelayDuration = 1000;
+        this.idleDelayDuration = 2000;
         this.timeEnteredPotentialIdleState = 0;
         this.isPendingIdle = false;
         this.isIdle = true;

@@ -83,6 +83,7 @@ class Cenario {
     }
 
     exibirCenario(textura) {
+        imageMode(CENTER);
         let offsetX = 540; // Início da área do cenário em x
         let larguraCenario = this.numColunas * this.tamanhoBloco;
         let alturaCenario = this.numLinhas * this.tamanhoBloco;
