@@ -25,6 +25,7 @@ let fase1 = {
 
     //textura
     textura_background: null,
+    textura_lateral_background: null,
 
 
     //blocos
@@ -52,8 +53,8 @@ let fase1 = {
     whileDetected: false,
     movimento: null,
     sequenciaDeMovimentos: null,
-    whileRep: 0, 
-    contBlocoWhile: 0, 
+    whileRep: 0,
+    contBlocoWhile: 0,
     quantRept: 0,
 
     init: function () {
@@ -96,6 +97,10 @@ let fase1 = {
 
     draw: function () {
         background("#fff");
+        console.log("Lateral bg dimensions:",
+            this.textura_lateral_background.width,
+            this.textura_lateral_background.height);
+        image(this.textura_lateral_background, 270, 450, 540, 900); // Desenha a textura de fundo | parametros: (imagem, x, y, largura, altura)
         this.cenario.exibirCenario(this.textura_background);
         this.robot.display();
         image(this.bau, this.eixoX, this.eixoY, 75, 70); // Use image() para p5.js
@@ -103,7 +108,7 @@ let fase1 = {
         // --- Desenhar Blocos ---
         // 1. Desenha os blocos template
         for (let i = 0; i < this.templateBlocks.length; i++) {
-             this.templateBlocks[i].display();
+            this.templateBlocks[i].display();
         }
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
@@ -130,34 +135,34 @@ let fase1 = {
         text("MouseX: " + mouseX, 70, 20);
         text("MouseY: " + mouseY, 70, 40);
 
-         // --- Desenhar Arrastando Bloco da Sequência ---
-         // O bloco em si já será desenhado em sua posição atual pela blocosList.display().
-         // Se você quiser que ele siga o mouse *durante* o arrasto, você precisaria
-         // atualizar o this.draggingSequenceBlock.x e this.draggingSequenceBlock.y aqui no draw.
-         if (this.draggingSequenceBlock !== null) {
-             this.draggingSequenceBlock.x = mouseX - this.offsetX;
-             this.draggingSequenceBlock.y = mouseY - this.offsetY;
-             // Nota: Isso fará o bloco se mover visualmente. A lógica de
-             // reordenar na lista só acontece no mouseReleased com realocarBlocos.
-         }
+        // --- Desenhar Arrastando Bloco da Sequência ---
+        // O bloco em si já será desenhado em sua posição atual pela blocosList.display().
+        // Se você quiser que ele siga o mouse *durante* o arrasto, você precisaria
+        // atualizar o this.draggingSequenceBlock.x e this.draggingSequenceBlock.y aqui no draw.
+        if (this.draggingSequenceBlock !== null) {
+            this.draggingSequenceBlock.x = mouseX - this.offsetX;
+            this.draggingSequenceBlock.y = mouseY - this.offsetY;
+            // Nota: Isso fará o bloco se mover visualmente. A lógica de
+            // reordenar na lista só acontece no mouseReleased com realocarBlocos.
+        }
 
 
         // this.blocos.drawWhileRepeat(); // Precisa ser adaptado se quiser manter
         this.displayUI();
 
         //mostrando as coodernadas do mouse para debug
-        
+
         if (this.robot.isMoving) {
-             this.robot.move(false);
-             if (this.cenario.verificarColisao(this.robot)) {
-                 console.log("O robô colidiu com um obstáculo!");
-                 this.sequenciaDeMovimentos = [];
-                 this.whileDetected = false;
-                 this.reinitialize(); // Reinicializa se houver colisão
-                 this.robot.move(true); // Reseta posição do robô
-                 return;
-             }
-         }
+            this.robot.move(false);
+            if (this.cenario.verificarColisao(this.robot)) {
+                console.log("O robô colidiu com um obstáculo!");
+                this.sequenciaDeMovimentos = [];
+                this.whileDetected = false;
+                this.reinitialize(); // Reinicializa se houver colisão
+                this.robot.move(true); // Reseta posição do robô
+                return;
+            }
+        }
     },
 
     preload: function () {
@@ -168,29 +173,30 @@ let fase1 = {
         this.bau = loadImage('images/bau.png'); // Exemplo
         this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
         //carregando textura
-        this.textura_background = loadImage('assets/texturas/background_180x180.png');
+        this.textura_background = loadImage('assets/background/background_180x180.png');
+        this.textura_lateral_background = loadImage('assets/background/lateral_background.png');
         //carregando sprites
-        for (let i = 1; i<=10; i++){
+        for (let i = 1; i <= 10; i++) {
             this.sprite_idle[i] = loadImage('assets/urinha/urinha_idle/urinha_idle' + i + '.png');
         }
         //serve para andar para o urinha para a direita e esquerda(espelhado)
-        for (let i = 1; i<= 6; i++){
-            this.sprite_andar_direita[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + (i+3) + '.png');
+        for (let i = 1; i <= 6; i++) {
+            this.sprite_andar_direita[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + (i + 3) + '.png');
         }
-        for (let i = 1; i<= 6; i++){
+        for (let i = 1; i <= 6; i++) {
             this.sprite_andar_baixo[i] = loadImage('assets/urinha/urinha_baixo_andar(x32)/pixil-frame-' + i + '.png');
         }
-        for (let i = 1; i<= 6; i++){
+        for (let i = 1; i <= 6; i++) {
             this.sprite_andar_cima[i] = loadImage('assets/urinha/urinha_cima_andar/andar_cima' + i + '.png');
         }
-        for (let i = 1; i<= 10; i++){
+        for (let i = 1; i <= 10; i++) {
             this.sprite_rotate_baixo[i] = loadImage('assets/urinha/urinha_rotate_baixo/urinha_rotate_b' + i + '.png');
         }
-        for (let i = 1; i<= 10; i++){
+        for (let i = 1; i <= 10; i++) {
             this.sprite_rotate_cima[i] = loadImage('assets/urinha/urinha_rotate_cima/urinha_rotate_c' + i + '.png');
         }
         //serve para rotacionar a urinha para direita e esquerda(espelhado)
-        for (let i = 1; i<= 3; i++){
+        for (let i = 1; i <= 3; i++) {
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
         }
 
@@ -210,9 +216,9 @@ let fase1 = {
         // Ex:
         let clickedBlock = this.blocosList.SearchBloco(mouseX, mouseY);
         if (clickedBlock && clickedBlock.text === "While") {
-             // Lógica para incrementar whileRep, talvez mostrar um prompt?
-             clickedBlock.isInside(mouseX, mouseY);
-             console.log("Clicou no bloco While!");
+            // Lógica para incrementar whileRep, talvez mostrar um prompt?
+            clickedBlock.isInside(mouseX, mouseY);
+            console.log("Clicou no bloco While!");
         }
     },
 
@@ -232,23 +238,23 @@ let fase1 = {
         // 2. Verificar clique em Blocos da Sequência
         // Só checa se não estiver arrastando um template
         if (this.draggingTemplateType === null) {
-             let blocoClicado = this.blocosList.SearchBloco(mouseX, mouseY);
-             if (blocoClicado !== null) {
-                 this.draggingSequenceBlock = blocoClicado; // Guarda a REFERÊNCIA
-                 if (this.draggingSequenceBlock.text === "EndWhile" || this.draggingSequenceBlock.text === "While") {
-                     console.log("Clicou no bloco EndWhile, não pode arrastar.");
-                     this.draggingSequenceBlock = null; // Reseta o estado
-                     return; // Não faz nada se clicou no EndWhile
-                 }
-                 // Calcula o offset para o bloco não pular para o cursor
-                 this.offsetX = mouseX - this.draggingSequenceBlock.x;
-                 this.offsetY = mouseY - this.draggingSequenceBlock.y;
-                 console.log("Iniciando arrasto do bloco da sequência:", this.draggingSequenceBlock.text);
-                 // Opcional: Remover temporariamente da lista para desenhar por cima?
-                 // Ou apenas garantir que ele seja desenhado por último/com destaque.
-                 // A abordagem de atualizar x,y no draw() é mais simples.
-                 return;
-             }
+            let blocoClicado = this.blocosList.SearchBloco(mouseX, mouseY);
+            if (blocoClicado !== null) {
+                this.draggingSequenceBlock = blocoClicado; // Guarda a REFERÊNCIA
+                if (this.draggingSequenceBlock.text === "EndWhile" || this.draggingSequenceBlock.text === "While") {
+                    console.log("Clicou no bloco EndWhile, não pode arrastar.");
+                    this.draggingSequenceBlock = null; // Reseta o estado
+                    return; // Não faz nada se clicou no EndWhile
+                }
+                // Calcula o offset para o bloco não pular para o cursor
+                this.offsetX = mouseX - this.draggingSequenceBlock.x;
+                this.offsetY = mouseY - this.draggingSequenceBlock.y;
+                console.log("Iniciando arrasto do bloco da sequência:", this.draggingSequenceBlock.text);
+                // Opcional: Remover temporariamente da lista para desenhar por cima?
+                // Ou apenas garantir que ele seja desenhado por último/com destaque.
+                // A abordagem de atualizar x,y no draw() é mais simples.
+                return;
+            }
         }
     },
 
@@ -259,10 +265,10 @@ let fase1 = {
                 console.log("Soltou na área de templates, não faz nada.");
                 this.draggingTemplateType = null; // Reseta o estado
                 return; // Não faz nada se soltou na área de templates
-               }
+            }
             console.log("Soltando template:", this.draggingTemplateType, "em", mouseX, mouseY);
             // Adiciona um NOVO bloco à lista na posição Y do mouse
-            this.blocosList.addNovoBlocoNaPosicao(mouseX,mouseY, this.draggingTemplateType);
+            this.blocosList.addNovoBlocoNaPosicao(mouseX, mouseY, this.draggingTemplateType);
             this.draggingTemplateType = null; // Reseta o estado
         }
         // 2. Soltando um Bloco da Sequência
@@ -301,7 +307,7 @@ let fase1 = {
     ButtonClicks: function () {
         // Função isClickInside precisa estar definida em algum lugar
         const isClickInside = (x, y, w, h) => {
-             return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+            return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
         };
 
         if (isClickInside(50, 830, 100, 50)) { // Botão Limpar
@@ -331,7 +337,7 @@ let fase1 = {
         this.executeMovementSequence();
     },
 
-    executeMovementSequence: function () {   
+    executeMovementSequence: function () {
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             console.log("Sequência concluída ou vazia.");
             this.verificarVitoria();
@@ -350,8 +356,8 @@ let fase1 = {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
             setTimeout(() => this.executeMovementSequence(), 602); // Ajustar delay
         } else {
-             console.warn("Tipo de movimento desconhecido:", this.movimento.type);
-             this.executeMovementSequence(); // Pula para o próximo
+            console.warn("Tipo de movimento desconhecido:", this.movimento.type);
+            this.executeMovementSequence(); // Pula para o próximo
         }
     },
 

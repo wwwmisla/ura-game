@@ -1,172 +1,92 @@
 let menu = {
-    /**
-     * Inicializa o menu com configurações padrão
-     * - Define cores do esquema visual
-     * - Carrega elementos gráficos
-     * - Configura botões do menu
-     */
     init: function () {
-        // Reseta o estado gráfico para garantir consistência
         this.resetCanvasState();
+        this.bgImg = loadImage('assets/background/background_menu.png');
 
-        // Paleta de cores (azul pastel como tema principal)
-        this.corFundo = color(204, 229, 255);    // Fundo azul claro
-        this.corPrincipal = color(70, 100, 140);  // Textos principais
-        this.corBotaoNormal = color(240, 248, 255, 200); // Botões - estado normal
-        this.corBotaoHover = color(180, 210, 255);       // Botões - mouse sobre
-        this.corTexto = color(70, 100, 140);     // Cor do texto dos botões
-        this.corBorda = color(120, 150, 190);    // Bordas dos elementos
-
-        // Configuração do logo
+        // Configuração do logo - agora com posicionamento mais centralizado
         this.logo = {
-            img: loadImage('assets/menu/logo.png'), // Carrega imagem
-            x: width / 2,   // Centralizado horizontalmente
-            y: 150,         // Posição vertical fixa
-            w: 600,         // Largura da imagem
-            h: 240          // Altura da imagem
+            img: loadImage('assets/logos/ura_title_white.png'),
+            x: width / 2,
+            y: height * 0.3,  // 30% da altura da tela
+            w: 600,
+            h: 240
         };
 
-        // Array de botões do menu
+        // Posição dos botões baseada em porcentagem da altura
+        const btnYStart = height * 0.5;  // Começa a 50% da altura
+        const btnSpacing = height * 0.15; // Espaçamento de 15% entre botões
+
         this.botoes = [
             {   // Botão Jogar
-                texto: "Jogar",
-                icone: "🎮",  // Emoji de controle
-                x: width / 2, // Centralizado
-                y: 400,       // Posição vertical
-                w: 250,       // Largura
-                h: 60         // Altura
-            },
-            {   // Botão Instruções
-                texto: "Instruções",
-                icone: "📚",  // Emoji de livros
+                normalImg: loadImage('assets/botoes/botoes_menu/button_jogar.png'),
+                hoverImg: loadImage('assets/botoes/botoes_menu/button_jogar_sombra.png'),
                 x: width / 2,
-                y: 500,
-                w: 300,       // Ligeiramente mais largo
+                y: btnYStart,
+                w: 250,
+                h: 60
+            },
+            {   // Botão Tutorial
+                normalImg: loadImage('assets/botoes/botoes_menu/button_tutorial.png'),
+                hoverImg: loadImage('assets/botoes/botoes_menu/button_tutorial_sombra.png'),
+                x: width / 2,
+                y: btnYStart + btnSpacing,
+                w: 250,
                 h: 60
             },
             {   // Botão Créditos
-                texto: "Créditos",
-                icone: "👥",  // Emoji de pessoas
+                normalImg: loadImage('assets/botoes/botoes_menu/button_creditos.png'),
+                hoverImg: loadImage('assets/botoes/botoes_menu/button_creditos_sombra.png'),
                 x: width / 2,
-                y: 600,
+                y: btnYStart + btnSpacing * 2,
                 w: 250,
                 h: 60
             }
         ];
     },
 
-    /**
-     * Reseta o estado do canvas para configurações padrão
-     * - Remove efeitos especiais
-     * - Define valores padrão para desenho
-     */
     resetCanvasState: function () {
-        drawingContext.shadowColor = 'transparent'; // Sem sombra
-        drawingContext.shadowBlur = 0;             // Sem blur
-        noStroke();              // Sem contorno
-        fill(255);               // Preenchimento branco
-        textSize(12);            // Tamanho de texto pequeno
-        textAlign(LEFT, TOP);    // Alinhamento padrão
-        textStyle(NORMAL);       // Estilo normal (não negrito)
+        drawingContext.shadowColor = 'transparent';
+        drawingContext.shadowBlur = 0;
+        noStroke();
     },
 
-    /**
-     * Função principal de desenho do menu
-     * - Chamada repetidamente para renderizar a tela
-     */
     draw: function () {
-        // 1. Desenha o fundo com a cor definida
-        background(this.corFundo);
+        // Desenha o fundo
+        imageMode(CORNER);
+        image(this.bgImg, 0, 0, width, height);
 
-        // 2. Configura e desenha o logo centralizado
-        imageMode(CENTER); // Imagem ancorada no centro
-        image(
-            this.logo.img,
-            this.logo.x,
-            this.logo.y,
-            this.logo.w,
-            this.logo.h
-        );
+        // Desenha o logo
+        imageMode(CENTER);
+        image(this.logo.img, this.logo.x, this.logo.y, this.logo.w, this.logo.h);
 
-        // 3. Desenha todos os botões em loop
+        // Desenha os botões
         for (let botao of this.botoes) {
             this.desenharBotao(botao);
         }
     },
 
-    /**
-     * Desenha um botão individual com ícone e texto
-     * @param {Object} botao - Objeto contendo configurações do botão
-     */
     desenharBotao: function (botao) {
-        push(); // Salva o estado atual de configuração gráfica
-
-        // Verifica se mouse está sobre o botão (para efeito hover)
-        const hover = this.isMouseOver(botao);
-
-        // Configura estilo do retângulo do botão
-        fill(hover ? this.corBotaoHover : this.corBotaoNormal); // Cor muda no hover
-        stroke(this.corBorda);  // Cor da borda
-        strokeWeight(2);        // Espessura da borda
-        rectMode(CENTER);       // Coordenadas do centro do retângulo
-        rect(
-            botao.x,           // Posição X
-            botao.y,           // Posição Y
-            botao.w,           // Largura
-            botao.h,           // Altura
-            20                 // Borda arredondada (raio)
-        );
-
-        // Configura estilo do texto/ícone
-        noStroke();            // Sem borda no texto
-        fill(this.corTexto);   // Cor do texto
-        textSize(30);          // Tamanho do texto
-        textAlign(CENTER, CENTER); // Centralizado
-
-        // Posiciona ícone à esquerda do texto
-        const espacoIcone = 30; // Espaço entre ícone e texto
-        text(
-            botao.icone,                  // Emoji do ícone
-            botao.x - botao.w / 4,        // Posição X (esquerda do centro)
-            botao.y                       // Mesma posição Y
-        );
-        text(
-            botao.texto,                  // Texto do botão
-            botao.x + espacoIcone / 2,    // Posição X (direita do ícone)
-            botao.y                       // Mesma posição Y
-        );
-
-        pop(); // Restaura configurações gráficas anteriores
+        push();
+        imageMode(CENTER);
+        if (this.isMouseOver(botao) && botao.hoverImg) {
+            image(botao.hoverImg, botao.x, botao.y, botao.w, botao.h);
+        } else {
+            image(botao.normalImg, botao.x, botao.y, botao.w, botao.h);
+        }
+        pop();
     },
 
-    /**
-     * Trata cliques do mouse na tela
-     * @returns {boolean} True se o clique foi tratado
-     */
     mouseClicked: function () {
-        // Verifica qual botão foi clicado e muda de tela
-        if (this.isMouseOver(this.botoes[0])) {      // Botão Jogar
-            mudanca_tela(fase1);                    // Muda para tela de jogo
-        }
-        else if (this.isMouseOver(this.botoes[1])) { // Botão Instruções
-            mudanca_tela(instrucoes);               // Muda para tela de instruções
-        }
-        else if (this.isMouseOver(this.botoes[2])) { // Botão Créditos
-            mudanca_tela(creditos);                 // Muda para tela de créditos
-        }
-        return true; // Indica que o clique foi tratado
+        if (this.isMouseOver(this.botoes[0])) mudanca_tela(fase1);
+        else if (this.isMouseOver(this.botoes[1])) mudanca_tela(instrucoes);
+        else if (this.isMouseOver(this.botoes[2])) mudanca_tela(creditos);
+        return true;
     },
 
-    /**
-     * Verifica se o mouse está sobre um botão
-     * @param {Object} botao - Objeto do botão a verificar
-     * @returns {boolean} True se mouse está sobre o botão
-     */
     isMouseOver: function (botao) {
-        // Calcula limites do botão (considerando rectMode CENTER)
-        return mouseX > botao.x - botao.w / 2 &&  // À direita da borda esquerda
-            mouseX < botao.x + botao.w / 2 &&  // À esquerda da borda direita
-            mouseY > botao.y - botao.h / 2 &&  // Abaixo do topo
-            mouseY < botao.y + botao.h / 2;    // Acima da base
+        return mouseX > botao.x - botao.w / 2 &&
+            mouseX < botao.x + botao.w / 2 &&
+            mouseY > botao.y - botao.h / 2 &&
+            mouseY < botao.y + botao.h / 2;
     }
 };
