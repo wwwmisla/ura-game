@@ -160,7 +160,7 @@ let fase1 = {
         // Certifique-se que robotImage e font estão carregados
         robotImage = loadImage('assets/urinha/urinha_rotate_cima/urinha_rotate_c1.png');
         font = loadFont('fonts/Silkscreen-Bold.ttf'); // Exemplo
-        this.bau = loadImage('images/bau.png'); // Exemplo
+        this.bau = loadImage('assets/colisoes/bau_chest.png'); // Exemplo
         this.win_sound = loadSound('audio/winsound.wav'); // Exemplo
         //carregando textura
         this.textura_background = loadImage('assets/background/background_180x180.png');
