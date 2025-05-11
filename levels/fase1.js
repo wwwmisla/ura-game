@@ -27,6 +27,16 @@ let fase1 = {
     textura_background: null,
     textura_lateral_background: null,
 
+
+    //blocos
+
+    blocoDireita: null,
+    blocoEsquerda: null,
+    blocoAvancar: null,
+    blocoWhile_cima: null,
+    blocoWhile_vertical: null,
+    blocoWhile_horizontal: null,
+
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
@@ -36,7 +46,7 @@ let fase1 = {
     tela_win: null,
     win_sound: null,
     somTocando: false,
-    tolerancia: [3, 12],
+    tolerancia: [4, 16],
     eixoX: 0,
     eixoY: 0,
     // Propriedades relacionadas à execução (whileDetected, etc.)
@@ -63,7 +73,7 @@ let fase1 = {
         };
 
         let [roboX, roboY] = posicaoLivre();
-        this.robot = new Robot(roboX, roboY, 75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(roboX+2, roboY-5, 75); // Assumindo que Robot e Cenario existem
 
         // --- Inicialização da Lista Ligada e Templates ---
         this.blocosList = new LinkedBlocos(); // Cria a instância da lista ligada
@@ -79,9 +89,9 @@ let fase1 = {
         // Adiciona instâncias de 'bloco' ao array de templates
         // As posições (x, y) são fixas na área de templates (topo da tela)
         this.templateBlocks.push(new bloco(20, 40, "Avançar"));
-        this.templateBlocks.push(new bloco(240, 40, "Direita"));
+        this.templateBlocks.push(new bloco(270, 40, "Direita"));
         this.templateBlocks.push(new bloco(20, 140, "Esquerda"));
-        this.templateBlocks.push(new bloco(270, 120, "While")); // Ajuste Y conforme layout
+        this.templateBlocks.push(new bloco(270, 120, "While"));
         console.log("Blocos padrão criados:", this.templateBlocks);
     },
 
@@ -103,6 +113,7 @@ let fase1 = {
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
         this.blocosList.display();
+        imageMode(CENTER);
 
         // --- Desenhar Preview (Arrastando Template) ---
         if (this.draggingTemplateType !== null) {
@@ -189,6 +200,14 @@ let fase1 = {
         for (let i = 1; i <= 3; i++) {
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
         }
+
+        //carregando imagem dos blocos
+        this.blocoDireita = loadImage('assets/buttons_command/button_direita.png');
+        this.blocoEsquerda = loadImage('assets/buttons_command/button_esquerda.png');
+        this.blocoAvancar = loadImage('assets/buttons_command/button_frente.png');
+        this.blocoWhile_cima = loadImage('assets/buttons_command/button_repetir1.png');    
+        this.blocoWhile_vertical = loadImage('assets/buttons_command/button_repetir2.png');
+        this.blocoWhile_horizontal = loadImage('assets/buttons_command/button_repetir3.png');
 
     },
 
@@ -333,10 +352,10 @@ let fase1 = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1515 * this.movimento.steps); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 620); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 602); // Ajustar delay
         } else {
             console.warn("Tipo de movimento desconhecido:", this.movimento.type);
             this.executeMovementSequence(); // Pula para o próximo
@@ -349,6 +368,7 @@ let fase1 = {
         console.log("Robô:", this.robot.x, this.robot.y, " Baú:", this.eixoX, this.eixoY);
         if (!this.robot.isMoving && Math.abs(this.robot.x - this.eixoX) <= this.tolerancia[0] && Math.abs(this.robot.y - this.eixoY) <= this.tolerancia[1]) {
             console.log("VITÓRIA!");
+            this.robot.robotSound(true);
             this.tela_vitoria();
         } else {
             console.log("Ainda não chegou ao baú.");
@@ -369,7 +389,10 @@ let fase1 = {
     reinitialize: function () {
         console.log("Reinicializando fase...");
         // Limpa a sequência de blocos na lista ligada
+        
         this.blocosList.clear();
+        this.robot.move(true);
+        this.robot.robotSound(true);
 
         // Reseta variáveis de estado da execução
         this.whileRep = 0;

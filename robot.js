@@ -30,6 +30,12 @@ class Robot {
         this.isMoving = false;
         this.isRotating = false;
 
+        //sons do robo
+        this.robot_souds = {
+            movimento: loadSound('audio/robot_rotate.mp3'),
+            robot_rotate: loadSound('audio/robot_movimentos.mp3'),
+        }
+
         // Controle de animação
         this.currentFrame = 1;
         this.frameCount = 0;
@@ -41,8 +47,8 @@ class Robot {
             andar_baixo: 4,
             andar_cima: 4,
             // Velocidades para as animações de rotação
-            rotate_baixo: 3,                // Ex: Animação para virar para baixo
-            rotate_cima: 3,                 // Ex: Animação para virar para cima
+            rotate_baixo: 2.7,                // Ex: Animação para virar para baixo
+            rotate_cima: 2.7,                 // Ex: Animação para virar para cima
             rotate_direita_esquerda: 12,     // Ex: Animação mais rápida para virar de lado
             // Velocidade para a animação de idle
             idle: 8,
@@ -53,10 +59,13 @@ class Robot {
         this.targetPosition = 0;
 
         // Controle de Delay para Animação de Idle
-        this.idleDelayDuration = 1000;
+        this.idleDelayDuration = 2000;
         this.timeEnteredPotentialIdleState = 0;
         this.isPendingIdle = false;
         this.isIdle = true;
+
+        // novo: armazena a última animação válida
+        this.lastAnim = null;
     }
 
     updateState() {
@@ -90,6 +99,11 @@ class Robot {
      * @returns {object} { spriteArray, maxFrames, useScale, currentAnimSpeed }
      */
     getCurrentAnimation() {
+        // se está aguardando idle, retorna sempre a última animação
+        if (this.isPendingIdle && this.lastAnim) {
+            return this.lastAnim;
+        }
+
         let spriteArray, maxFrames;
         let useScale = false;
         let currentAnimSpeed = this.animationSpeeds.default; // Padrão inicial
@@ -198,7 +212,10 @@ class Robot {
         maxFrames = spriteArray.length - 1;
         if (maxFrames < 1) maxFrames = 1;
 
-        return { spriteArray, maxFrames, useScale, currentAnimSpeed };
+        // antes de retornar, cacheia o resultado
+        const animResult = { spriteArray, maxFrames, useScale, currentAnimSpeed };
+        this.lastAnim = animResult;
+        return animResult;
     }
 
     display() {
@@ -207,6 +224,12 @@ class Robot {
 
         if (this.currentFrame > anim.maxFrames || this.currentFrame < 1) {
             this.currentFrame = 1;
+        }
+
+        //verificando se o robo sai da tela
+        if (this.x < 540 || this.x > 1440 || this.y < 0 || this.y > 900) {
+            console.warn("O robô saiu da tela! Corrigindo posição.");
+            fase1.reinitialize();
         }
 
         const currentSpriteImage = anim.spriteArray[this.currentFrame];
@@ -223,6 +246,9 @@ class Robot {
             return;
         }
 
+        //som do robo, parametro é o clear por isso passamos false
+        this.robotSound(false);
+
         imageMode(CENTER);
         push();
         translate(this.x, this.y);
@@ -235,8 +261,41 @@ class Robot {
         this.updateAnimation();
     }
 
+
+    robotSound(clear){
+        //executando sons com base no estado
+        if (clear) {
+            this.robot_souds.movimento.stop();
+            this.robot_souds.robot_rotate.stop();
+        }
+
+        if (this.isMoving && !this.isRotating) {
+            if (!this.robot_souds.movimento.isPlaying()) {
+                this.robot_souds.robot_rotate.stop();
+                this.robot_souds.movimento.play();
+            }
+        } else if (this.isRotating) {
+            if (!this.robot_souds.robot_rotate.isPlaying()) {
+                this.robot_souds.movimento.stop();
+                this.robot_souds.robot_rotate.play();
+            }
+        }
+
+    }
+
     updateAnimation() {
         const animData = this.getCurrentAnimation();
+
+        // se está aguardando o idle, congela frame atual
+        if (this.isPendingIdle) {
+            return;
+        }
+        // restante do idle “estático”
+        if (this.isIdle && animData.maxFrames <= 1) {
+            this.currentFrame = 1;
+            this.frameCount = 0;
+            return;
+        }
 
         if (!animData || !animData.spriteArray || animData.spriteArray.length === 0 || animData.maxFrames === 0) {
             console.warn("updateAnimation: Dados de animação ausentes. Resetando frame.");

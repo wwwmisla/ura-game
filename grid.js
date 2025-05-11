@@ -69,6 +69,7 @@ class Cenario {
     }
 
     exibirCenario(textura) {
+        imageMode(CENTER);
         let offsetX = 540; // Início da área do cenário em x
         let larguraCenario = this.numColunas * this.tamanhoBloco;
         let alturaCenario = this.numLinhas * this.tamanhoBloco;
@@ -102,7 +103,7 @@ class Cenario {
                 strokeWeight(1); // Borda fina
                 noFill();
                 rect(x, y, this.tamanhoBloco, this.tamanhoBloco);
-
+                imageMode(CORNER);
                 // Desenhar os obstáculos, se houver
                 if (tipoBloco !== 0) {
                     let tipoObstaculo = tipoBloco.tipo;
