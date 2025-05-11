@@ -1,64 +1,76 @@
 let instrucoes = {
-    // Função de inicialização - configura cores e elementos
+    fonte: null,
+    imgVoltar: null,
+    imgVoltarHover: null,
+
     init: function () {
-        // Primeiro reseta o estado do canvas
         this.resetCanvasState();
+    
+        this.backgroundImage = loadImage("assets/background/background_menu.png");
 
-        // Define cores usando a função color() (do p5.js)
-        // Cores são armazenadas como propriedades do objeto para reutilização
-        this.corFundo = color(204, 229, 255);    // Azul pastel claro para o fundo
-        this.corPrincipal = color(70, 100, 140); // Azul escuro para textos importantes
-        this.corSecundaria = color(90, 120, 160); // Azul médio para elementos secundários
-        this.corBorda = color(120, 150, 190);    // Azul para bordas
-        this.corBotao = color(240, 248, 255, 200); // Branco gelo semitransparente para botões
+        this.corFundo = color(7, 161, 209);
+        this.corPrincipal = color(14, 84, 89);
+        this.corSecundaria = color(255);
+        this.corBorda = color(14, 84, 89);
 
-        // Configuração do botão Voltar como um objeto com propriedades
+        // Define botão Voltar
         this.botaoVoltar = {
-            x: width / 2,   // Posição X centralizada
-            y: 800,         // Posição Y fixa
-            w: 200,         // Largura
-            h: 50,          // Altura
-            texto: "Voltar"  // Texto do botão
+            x: width / 2,
+            y: 800,
+            w: 200,
+            h: 50,
+            texto: "Voltar"
         };
+
+        // Carrega fonte e imagens 
+        this.fonte = loadFont("fonts/Silkscreen-Bold.ttf");
+        this.imgVoltar = loadImage("assets/botoes/botoes_menu/button_voltar.png");
+        this.imgVoltarHover = loadImage("assets/botoes/botoes_menu/button_voltar_sombra.png");
     },
 
-    // Função para resetar o estado gráfico do canvas
     resetCanvasState: function () {
-        // Remove efeitos de sombra
         drawingContext.shadowColor = 'transparent';
         drawingContext.shadowBlur = 0;
 
-        // Configurações padrão de desenho
-        noStroke();         // Sem contorno
-        fill(255);          // Preenchimento branco
-        textSize(12);       // Tamanho de texto pequeno
-        textAlign(LEFT, TOP); // Alinhamento de texto
-        textStyle(NORMAL);  // Estilo de texto normal (não negrito/itálico)
+        noStroke();
+        fill(255);
+        textSize(12);
+        textAlign(LEFT, TOP);
+        textStyle(NORMAL);
     },
 
-    // Função principal que desenha toda a tela de instruções
     draw: function () {
-        // 1. Prepara o canvas
         this.resetCanvasState();
-        background(this.corFundo); // Pinta o fundo com a cor definida
+        //background(this.corFundo);
 
-        // 2. Configurações de layout
-        const margem = width * 0.15; // Margem de 15% da largura
-        let yPos = 80;               // Posição Y inicial
+        // Desenha o fundo
+        // Aplica opacidade na imagem de fundo
+        tint(220, 200); // O valor 200 define a opacidade (255 é opaco, 0 é transparente)
+        imageMode(CORNER);
+        image(this.backgroundImage, 0, 0, width, height);
+        // Restaura a imagem para sem opacidade para outros elementos (se necessário)
+        noTint();
 
-        // 3. Desenha o cabeçalho
-        fill(this.corPrincipal);     // Usa a cor principal
-        textSize(48);               // Texto grande
-        textAlign(CENTER, CENTER);  // Centralizado
-        text("📚 Instruções", width / 2, yPos); // Texto com emoji
-        yPos += 80;                 // Avança a posição Y
+        const margem = width * 0.15;
+        let yPos = 80;
 
-        // 4. Linha divisória decorativa
+        // Exibe o emoji com a fonte padrão (para garantir que ele não quebre)
+        textFont("sans-serif"); // Fonte padrão para emoji
+        textSize(48);
+        textAlign(CENTER, CENTER);
+        text("📚", width / 2 - 180, yPos + 10);  // Exibe o emoji na posição (x, y)
+        fill(this.corPrincipal);
+        // Exibe o texto com a fonte personalizada
+        textFont(this.fonte); // Fonte personalizada para o texto
+        textSize(48);
+        textAlign(CENTER, CENTER);
+        text("Tutorial", width / 2, yPos);  // Coloca o texto ao lado do emoji
+        yPos += 80;
+
         this.desenharDivisor(width / 2 - 150, yPos);
+
         yPos += 50;
 
-        // 5. Container das instruções
-        // Lista de instruções com ícones e textos
         const instrucoesList = [
             { icon: "🖱️", text: "Arraste blocos de comando para a área de sequência" },
             { icon: "🧩", text: "Monte a ordem de movimentos do robô" },
@@ -67,107 +79,82 @@ let instrucoes = {
             { icon: "🎯", text: "Ajuste e repita até chegar ao tesouro!" }
         ];
 
-        // Define as dimensões do container retangular
         const container = {
-            x: margem,              // Posição X com margem
-            y: yPos,                // Posição Y atual
-            w: width - 2 * margem,  // Largura (largura total - margens)
-            h: 350                  // Altura fixa
+            x: margem,
+            y: yPos,
+            w: width - 2 * margem,
+            h: 350
         };
 
-        // Desenha o retângulo do container
-        fill(this.corBotao);        // Cor de fundo do container
-        stroke(this.corBorda);      // Cor da borda
-        strokeWeight(2);            // Espessura da borda
-        rect(container.x, container.y, container.w, container.h, 15); // Retângulo com bordas arredondadas
+        fill(this.corSecundaria);
+        stroke(this.corBorda);
+        strokeWeight(2);
+        rect(container.x, container.y, container.w, container.h, 15);
 
-        // Configurações para os itens de instrução
-        textSize(24);               // Tamanho do texto
-        fill(this.corPrincipal);    // Cor do texto
-        textAlign(LEFT, CENTER);    // Alinhamento à esquerda e centralizado vertical
+        textFont(this.fonte);
+        textSize(24);
+        fill(this.corPrincipal);
+        textAlign(LEFT, CENTER);
 
-        // Posicionamento dos itens
-        const espacamento = 60;    // Espaço entre cada item
-        const xIcone = container.x + 40; // Posição X dos ícones
-        const xTexto = xIcone + 50;      // Posição X dos textos (50px depois dos ícones)
+        const espacamento = 60;
+        const xIcone = container.x + 40;
+        const xTexto = xIcone + 50;
 
-        // Loop para desenhar cada item da lista
         for (let i = 0; i < instrucoesList.length; i++) {
-            const yItem = container.y + 60 + (i * espacamento); // Calcula posição Y de cada item
+            const yItem = container.y + 60 + (i * espacamento);
 
-            // Desenha o ícone
-            textSize(30);           // Tamanho maior para ícones
+            // Emojis com fonte padrão do sistema
+            textFont("sans-serif");
+            textSize(30);
             text(instrucoesList[i].icon, xIcone, yItem);
 
-            // Desenha o texto
-            textSize(22);           // Tamanho menor para textos
+            // Texto com a fonte pixelada
+            textFont(this.fonte);
+            textSize(22);
             text(instrucoesList[i].text, xTexto, yItem);
         }
 
-        yPos += container.h + 40;   // Ajusta posição Y após o container
 
-        // 6. Linha divisória final
+        yPos += container.h + 40;
         this.desenharDivisor(width / 2 - 150, yPos);
-
-        // 7. Desenha o botão Voltar
         this.desenharBotao();
     },
 
-    // Função para desenhar uma linha divisória decorativa
     desenharDivisor: function (x, y) {
-        push(); // Salva o estado atual do canvas
-
-        // Configurações da linha
-        stroke(this.corBorda);      // Cor da linha
-        strokeWeight(1.5);          // Espessura
-        drawingContext.setLineDash([8, 4]); // Linha tracejada (8px traço, 4px espaço)
-        line(x, y, x + 300, y);    // Desenha a linha
-
-        drawingContext.setLineDash([]); // Volta ao padrão (linha contínua)
-        pop();  // Restaura o estado anterior do canvas
+        push();
+        stroke(this.corBorda);
+        strokeWeight(1.5);
+        drawingContext.setLineDash([8, 4]);
+        line(x, y, x + 300, y);
+        drawingContext.setLineDash([]);
+        pop();
     },
 
-    // Função para desenhar o botão Voltar
     desenharBotao: function () {
-        push(); // Salva o estado atual do canvas
+        push();
 
-        // Verifica se o mouse está sobre o botão
         const hover = this.isMouseOver(this.botaoVoltar);
-        const botao = this.botaoVoltar; // Referência ao botão
+        const img = hover ? this.imgVoltarHover : this.imgVoltar;
 
-        // Configura o preenchimento (muda de cor no hover)
-        fill(hover ? color(160, 200, 240) : this.corBotao);
-        stroke(this.corBorda);      // Cor da borda
-        strokeWeight(2);            // Espessura da borda
-        rectMode(CENTER);           // O retângulo é desenhado a partir do centro
-        rect(botao.x, botao.y, botao.w, botao.h, 15); // Retângulo arredondado
+        imageMode(CENTER);
+        image(img, this.botaoVoltar.x, this.botaoVoltar.y, this.botaoVoltar.w, this.botaoVoltar.h);
 
-        // Configurações do texto do botão
-        noStroke();                 // Sem borda no texto
-        fill(this.corPrincipal);    // Cor do texto
-        textSize(24);               // Tamanho
-        textAlign(CENTER, CENTER);  // Centralizado
-        text(botao.texto, botao.x, botao.y); // Desenha o texto
-
-        pop();  // Restaura o estado anterior do canvas
+        pop();
     },
 
-    // Função chamada quando o mouse é clicado
     mouseClicked: function () {
-        // Verifica se o clique foi no botão Voltar
+        if (!this.botaoVoltar) return false;
         if (this.isMouseOver(this.botaoVoltar)) {
-            mudanca_tela(menu); // Chama função para mudar para a tela de menu
-            return true;         // Indica que o clique foi tratado
+            mudanca_tela(menu);
+            return true;
         }
-        return false; // Clique não foi no botão
+        return false;
     },
 
-    // Função para verificar se o mouse está sobre um elemento
     isMouseOver: function (botao) {
-        // Verifica se as coordenadas do mouse estão dentro dos limites do botão
-        return mouseX > botao.x - botao.w / 2 &&  // À direita da borda esquerda
-            mouseX < botao.x + botao.w / 2 &&  // À esquerda da borda direita
-            mouseY > botao.y - botao.h / 2 &&  // Abaixo da borda superior
-            mouseY < botao.y + botao.h / 2;     // Acima da borda inferior
+        return mouseX > botao.x - botao.w / 2 &&
+            mouseX < botao.x + botao.w / 2 &&
+            mouseY > botao.y - botao.h / 2 &&
+            mouseY < botao.y + botao.h / 2;
     }
 };

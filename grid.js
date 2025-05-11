@@ -4,6 +4,18 @@ class Cenario {
         this.tamanhoBloco = tamanhoBloco;
         this.numLinhas = numLinhas;
         this.numColunas = numColunas;
+
+        // Carrega as imagens dos obstáculos
+        this.imagensObstaculos = {
+            cone: loadImage('assets/colisoes/cone.png'),
+            mato: loadImage('assets/colisoes/mato.png'),
+            pedra_carvao: loadImage('assets/colisoes/pedra1.png'),
+            pedra_granito: loadImage('assets/colisoes/pedra2.png')
+        };
+
+        // Fator de redução (dividir por 2)
+        this.fatorReduzir = 2; // Fator de redução para o tamanho dos obstáculos
+
         this.grid = this.gerarGrid(); // Gera a grid com blocos e obstáculos fixos
     }
 
@@ -23,7 +35,7 @@ class Cenario {
             }
             grid.push(linha);
         }
-    
+
         // Função para garantir que o tesouro tenha espaço ao redor
         const garantirEspacoAoRedorDoTesouro = (x, y) => {
             const direcoes = [
@@ -37,11 +49,11 @@ class Cenario {
                 }
             }
         };
-    
+
         // Verifica a posição do baú e garante espaço ao redor
         let [bauX, bauY] = [Math.floor(this.eixoX / this.tamanhoBloco), Math.floor(this.eixoY / this.tamanhoBloco)];
         garantirEspacoAoRedorDoTesouro(bauX, bauY);
-    
+
         return grid;
     }
 
@@ -49,35 +61,9 @@ class Cenario {
         return random() < 0.8 ? 0 : 1; // 80% de chance de ser caminho
     }
 
-    // Obstáculos
-    obstaculos = {
-        buraco: (x, y, tamanhoBloco) => {
-            fill("#4A4A4A"); // Preto Pastel para buraco
-            noStroke();
-            ellipse(x + tamanhoBloco / 2, y + tamanhoBloco / 2, tamanhoBloco * 0.8, tamanhoBloco * 0.8); // Buraco principal
-        },
-        cone: (x, y, tamanhoBloco) => {
-            fill("#F3E5AB"); // Amarelo Pastel para o cone
-            stroke("#4A4A4A"); // Preto Pastel para a borda do cone
-            strokeWeight(2);
-            triangle(
-                x + tamanhoBloco / 2, y + tamanhoBloco * 0.2, // Topo do cone
-                x + tamanhoBloco * 0.3, y + tamanhoBloco * 0.8, // Base esquerda
-                x + tamanhoBloco * 0.7, y + tamanhoBloco * 0.8  // Base direita
-            );
-        },
-        arvore: (x, y, tamanhoBloco) => {
-            fill("#A8D5BA"); // Verde Menta Pastel para a copa
-            noStroke();
-            ellipse(x + tamanhoBloco / 2, y + tamanhoBloco * 0.4, tamanhoBloco * 0.6, tamanhoBloco * 0.6); // Copa da árvore
-            
-            fill("#4A4A4A"); // Preto Pastel para o tronco
-            rect(x + tamanhoBloco * 0.4, y + tamanhoBloco * 0.6, tamanhoBloco * 0.2, tamanhoBloco * 0.4); // Tronco da árvore
-        }
-    };
-
+    // Retorna um tipo de obstáculo aleatório
     obterObstaculoAleatorio() {
-        const tiposObstaculos = ['buraco', 'cone', 'arvore'];
+        const tiposObstaculos = ['cone', 'mato', 'pedra_carvao', 'pedra_granito'];
         const indiceAleatorio = Math.floor(Math.random() * tiposObstaculos.length);
         return tiposObstaculos[indiceAleatorio];
     }
@@ -86,18 +72,20 @@ class Cenario {
         let offsetX = 540; // Início da área do cenário em x
         let larguraCenario = this.numColunas * this.tamanhoBloco;
         let alturaCenario = this.numLinhas * this.tamanhoBloco;
+
         if (debug) {
             console.log("Largura do cenário: " + larguraCenario);
             console.log("Altura do cenário: " + alturaCenario);
             debug = false;
         }
+
         // Dimensões da textura
         let texturaW = textura.width;
         let texturaH = textura.height;
 
         // Preencher a área do cenário com a textura repetida
         for (let y = 450; y < alturaCenario; y += texturaH) {
-            for (let x = offsetX+450; x < offsetX + larguraCenario; x += texturaW) {
+            for (let x = offsetX + 450; x < offsetX + larguraCenario; x += texturaW) {
                 image(textura, x, y, texturaW, texturaH);
             }
         }
@@ -109,7 +97,7 @@ class Cenario {
                 let y = i * this.tamanhoBloco;
                 let tipoBloco = this.grid[i][j];
 
-                // Desenhar a borda do grid
+                // Desenhar a borda do grid (opcional)
                 stroke("#f7fafc"); // Cor da borda sutil
                 strokeWeight(1); // Borda fina
                 noFill();
@@ -118,32 +106,22 @@ class Cenario {
                 // Desenhar os obstáculos, se houver
                 if (tipoBloco !== 0) {
                     let tipoObstaculo = tipoBloco.tipo;
-                    if (tipoObstaculo === 'buraco') {
-                        this.obstaculos.buraco(x, y, this.tamanhoBloco);
-                    } else if (tipoObstaculo === 'cone') {
-                        this.obstaculos.cone(x, y, this.tamanhoBloco);
-                    } else if (tipoObstaculo === 'arvore') {
-                        this.obstaculos.arvore(x, y, this.tamanhoBloco);
+                    let imgObstaculo = this.imagensObstaculos[tipoObstaculo];
+
+                    if (imgObstaculo) {
+                        image(
+                            imgObstaculo,
+                            x,
+                            y,
+                            this.tamanhoBloco,
+                            this.tamanhoBloco
+                        );
                     }
+
                 }
             }
         }
-
-        // Linha divisória vertical (azul)
-        stroke("#3E7FC1"); // Cor azul
-        strokeWeight(3); // Peso da linha maior para destacá-la
-        let xInicial = offsetX; // Posição ajustada para a borda esquerda do primeiro bloco
-        let yInicial = 0; // Começa no topo
-        let yFinal = alturaCenario; // Vai até a última célula
-        line(xInicial, yInicial, xInicial, yFinal);
-
-        // Linha divisória horizontal da UI
-        strokeWeight(3);
-        line(0, 235, 539, 235);
-
-        strokeWeight(2); // Resetar o peso da linha para o padrão
     }
-    
 
     verificarColisao(robot) {
         let colunaAtual = floor((robot.x - 540) / this.tamanhoBloco); // Ajuste para a área do cenário
