@@ -59,7 +59,7 @@ class Robot {
         this.targetPosition = 0;
 
         // Controle de Delay para Animação de Idle
-        this.idleDelayDuration = 2000;
+        this.idleDelayDuration = 1000;
         this.timeEnteredPotentialIdleState = 0;
         this.isPendingIdle = false;
         this.isIdle = true;
@@ -226,11 +226,6 @@ class Robot {
             this.currentFrame = 1;
         }
 
-        //verificando se o robo sai da tela
-        if (this.x < 540 || this.x > 1440 || this.y < 0 || this.y > 900) {
-            console.warn("O robô saiu da tela! Corrigindo posição.");
-            fase1.reinitialize();
-        }
 
         const currentSpriteImage = anim.spriteArray[this.currentFrame];
 
@@ -278,6 +273,9 @@ class Robot {
             if (!this.robot_souds.robot_rotate.isPlaying()) {
                 this.robot_souds.movimento.stop();
                 this.robot_souds.robot_rotate.play();
+            } else if (this.isIdle){
+                this.robot_souds.robot_rotate.stop();
+                this.robot_souds.movimento.stop();
             }
         }
 

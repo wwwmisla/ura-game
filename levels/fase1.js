@@ -110,6 +110,11 @@ let fase1 = {
         for (let i = 0; i < this.templateBlocks.length; i++) {
             this.templateBlocks[i].display();
         }
+        //verificando se o robo sai da tela
+        if (this.robot.x < 540 || this.robot.x > 1440 || this.robot.y < 0 || this.robot.y > 900) {
+            console.warn("O robô saiu da tela! Corrigindo posição.");
+            this.reinitialize();
+        }
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
         this.blocosList.display();
@@ -341,6 +346,7 @@ let fase1 = {
     executeMovementSequence: function () {
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             console.log("Sequência concluída ou vazia.");
+            this.blocosList.clear(); // Limpa a lista de blocos
             this.verificarVitoria();
             // Não chamar reinitialize aqui automaticamente, talvez o usuário queira ver o resultado
             return;
