@@ -21,7 +21,7 @@ class Robot {
         this.y = y;
         this.size = size;
         this.image = robotImage; // Certifique-se que robotImage está definida globalmente
-
+        this.telawin = false;
         this.sentido = 90;
         this.previousSentido = 90;
         this.speed = 1; // Velocidade de movimento do robô (pixels por frame de lógica)
@@ -31,10 +31,7 @@ class Robot {
         this.isRotating = false;
 
         //sons do robo
-        this.robot_souds = {
-            movimento: loadSound('audio/robot_rotate.mp3'),
-            robot_rotate: loadSound('audio/robot_movimentos.mp3'),
-        }
+        
 
         // Controle de animação
         this.currentFrame = 1;
@@ -242,7 +239,10 @@ class Robot {
         }
 
         //som do robo, parametro é o clear por isso passamos false
-        this.robotSound(false);
+        if(!this.telawin){
+            this.robotSound(false);
+        }
+        
 
         imageMode(CENTER);
         push();
@@ -260,24 +260,26 @@ class Robot {
     robotSound(clear){
         //executando sons com base no estado
         if (clear) {
-            this.robot_souds.movimento.stop();
-            this.robot_souds.robot_rotate.stop();
+            fase1.robot_souds.movimento.stop();
+            fase1.robot_souds.robot_rotate.stop();
         }
 
         if (this.isMoving && !this.isRotating) {
-            if (!this.robot_souds.movimento.isPlaying()) {
-                this.robot_souds.robot_rotate.stop();
-                this.robot_souds.movimento.play();
+            if (!fase1.robot_souds.movimento.isPlaying()) {
+                fase1.robot_souds.robot_rotate.stop();
+                fase1.robot_souds.movimento.play();
             }
         } else if (this.isRotating) {
-            if (!this.robot_souds.robot_rotate.isPlaying()) {
-                this.robot_souds.movimento.stop();
-                this.robot_souds.robot_rotate.play();
-            } else if (this.isIdle){
-                this.robot_souds.robot_rotate.stop();
-                this.robot_souds.movimento.stop();
+            if (!fase1.robot_souds.robot_rotate.isPlaying()) {
+                fase1.robot_souds.movimento.stop();
+                fase1.robot_souds.robot_rotate.play();
             }
+        } else if (this.isIdle){
+            console.log("parou");
+            fase1.robot_souds.robot_rotate.stop();
+            fase1.robot_souds.movimento.stop();
         }
+        
 
     }
 
@@ -373,6 +375,7 @@ class Robot {
     
     moverPara(blocoCount) {
         if (blocoCount > 0) {
+            console.log("Chegou aqui")
             const normSentido = getNormalizedSentido(this.sentido);
             if (normSentido === 0) this.targetPosition = this.x + (blocoCount * this.size);
             else if (normSentido === 90) this.targetPosition = this.y + (blocoCount * this.size);

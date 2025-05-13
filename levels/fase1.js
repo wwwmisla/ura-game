@@ -40,6 +40,7 @@ let fase1 = {
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
+    robotSouds : null,
     imgExecutar: null,
     imgLimpar: null,
     bau: null,
@@ -205,6 +206,10 @@ let fase1 = {
         for (let i = 1; i <= 3; i++) {
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
         }
+        this.robot_souds = {
+            movimento: loadSound('audio/robot_rotate.mp3'),
+            robot_rotate: loadSound('audio/robot_movimentos.mp3'),
+        }
 
         //carregando imagem dos blocos
         this.blocoDireita = loadImage('assets/buttons_command/button_direita.png');
@@ -346,8 +351,8 @@ let fase1 = {
     executeMovementSequence: function () {
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             console.log("Sequência concluída ou vazia.");
-            this.blocosList.clear(); // Limpa a lista de blocos
             this.verificarVitoria();
+            this.blocosList.clear(); // Limpa a lista de blocos
             // Não chamar reinitialize aqui automaticamente, talvez o usuário queira ver o resultado
             return;
         }
