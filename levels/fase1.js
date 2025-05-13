@@ -42,7 +42,10 @@ let fase1 = {
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
     robotSouds : null,
     imgExecutar: null,
+    imgExecutar_sombra: null,
     imgLimpar: null,
+    imgLimpar_sombra: null,
+    
     bau: null,
     tela_win: null,
     win_sound: null,
@@ -98,6 +101,7 @@ let fase1 = {
 
     draw: function () {
         background("#fff");
+        imageMode(CENTER);
         console.log("Lateral bg dimensions:",
             this.textura_lateral_background.width,
             this.textura_lateral_background.height);
@@ -119,7 +123,7 @@ let fase1 = {
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
         this.blocosList.display();
-        imageMode(CENTER);
+        
 
         // --- Desenhar Preview (Arrastando Template) ---
         if (this.draggingTemplateType !== null) {
@@ -211,6 +215,11 @@ let fase1 = {
             robot_rotate: loadSound('audio/robot_movimentos.mp3'),
         }
 
+        this.imgExecutar = loadImage('assets/botoes/botoes_comando/button_executar.png');
+        this.imgExecutar_sombra = loadImage('assets/botoes/botoes_comando/button_executar_sombra.png');
+        this.imgLimpar = loadImage('assets/botoes/botoes_comando/button_limpar.png');
+        this.imgLimpar_sombra = loadImage('assets/botoes/botoes_comando/button_limpar_sombra.png');
+
         //carregando imagem dos blocos
         this.blocoDireita = loadImage('assets/buttons_command/button_direita.png');
         this.blocoEsquerda = loadImage('assets/buttons_command/button_esquerda.png');
@@ -301,18 +310,28 @@ let fase1 = {
     },
 
     displayUI: function () {
-        // Sua função displayUI existente para desenhar botões, etc.
-        // Exemplo:
-        // drawButton(350, 830, 100, 50, "Executar");
-        // drawButton(50, 830, 100, 50, "Limpar");
-        // Funções auxiliares como drawButton e isClickInside precisam existir
-        fill(0, 102, 153); // Cor Exemplo
-        rect(350, 830, 100, 50); // Botão Executar
-        rect(50, 830, 100, 50); // Botão Limpar
-        fill(255);
-        textAlign(CENTER, CENTER);
-        text("Executar", 400, 855);
-        text("Limpar", 100, 855);
+        
+        imageMode(CORNER);
+        image(this.imgExecutar, 350, 830, 100, 50);
+        image(this.imgLimpar, 50, 830, 150, 50);
+        //colocando os botoes para frnte e dando um contorno caso o mouse esteja em cima
+        if (mouseX >= 50 && mouseX <= 200 && mouseY >= 830 && mouseY <= 880) {
+            stroke(0);
+            strokeWeight(4);
+            fill(0, 255, 0, 100);
+            rect(50, 830, 100, 50, 10);
+            image(this.imgLimpar_sombra, 50, 830, 150, 50);
+        } else if (mouseX >= 350 && mouseX <= 450 && mouseY >= 830 && mouseY <= 880) {
+            stroke(0);
+            strokeWeight(4);
+            fill(0, 255, 0, 100);
+            rect(350, 830, 100, 50, 10);
+            image(this.imgExecutar_sombra, 350, 830, 100, 50);
+        } else {
+            noStroke();
+            
+        }
+        
     },
 
     ButtonClicks: function () {
