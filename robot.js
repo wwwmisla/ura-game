@@ -31,7 +31,7 @@ class Robot {
         this.isRotating = false;
 
         //sons do robo
-        
+
 
         // Controle de animação
         this.currentFrame = 1;
@@ -109,7 +109,7 @@ class Robot {
 
         if (this.isRotating) {
             const normPrevSentido = getNormalizedSentido(this.previousSentido);
-            
+
             if (normPrevSentido === 0 && normSentido === 90) { // Direita para Baixo
                 spriteArray = fase1.sprite_rotate_baixo;
                 currentAnimSpeed = this.animationSpeeds.rotate_baixo || this.animationSpeeds.default;
@@ -125,7 +125,7 @@ class Robot {
                 useScale = true;
                 currentAnimSpeed = this.animationSpeeds.rotate_cima || this.animationSpeeds.default;
             } else if ((normPrevSentido === 90 && normSentido === 0) || (normPrevSentido === 90 && normSentido === 180) || // Baixo para Direita/Esquerda
-                       (normPrevSentido === 270 && normSentido === 0) || (normPrevSentido === 270 && normSentido === 180)) { // Cima para Direita/Esquerda
+                (normPrevSentido === 270 && normSentido === 0) || (normPrevSentido === 270 && normSentido === 180)) { // Cima para Direita/Esquerda
                 spriteArray = fase1.sprite_rotate_direita_esquerda;
                 currentAnimSpeed = this.animationSpeeds.rotate_direita_esquerda || this.animationSpeeds.default;
                 if (normSentido === 180) { // Se virou para a esquerda (a partir de cima ou baixo)
@@ -133,11 +133,11 @@ class Robot {
                 }
                 // Se a rotação é de 90 para 0 (baixo para direita) ou 270 para 0 (cima para direita), não precisa de useScale (a menos que o sprite base seja para esquerda)
                 // Se a rotação é de 90 para 180 (baixo para esquerda) ou 270 para 180 (cima para esquerda)
-                 if ((normPrevSentido === 90 && normSentido === 180) || (normPrevSentido === 270 && normSentido === 180)){
+                if ((normPrevSentido === 90 && normSentido === 180) || (normPrevSentido === 270 && normSentido === 180)) {
                     useScale = true;
-                 } else if ((normPrevSentido === 90 && normSentido === 0) || (normPrevSentido === 270 && normSentido === 0)){
+                } else if ((normPrevSentido === 90 && normSentido === 0) || (normPrevSentido === 270 && normSentido === 0)) {
                     useScale = false; // ou depende da orientação base do seu sprite_rotate_direita_esquerda
-                 }
+                }
 
             } else {
                 console.warn(`Rotação não mapeada: ${normPrevSentido} -> ${normSentido}. Usando sprite de idle padrão.`);
@@ -159,8 +159,8 @@ class Robot {
                 spriteArray = fase1.sprite_andar_cima;
                 currentAnimSpeed = this.animationSpeeds.andar_cima || this.animationSpeeds.default;
             } else {
-                 spriteArray = fase1.sprite_idle; // Fallback
-                 currentAnimSpeed = this.animationSpeeds.idle || this.animationSpeeds.default;
+                spriteArray = fase1.sprite_idle; // Fallback
+                currentAnimSpeed = this.animationSpeeds.idle || this.animationSpeeds.default;
             }
         } else if (this.isIdle) {
             spriteArray = fase1.sprite_idle;
@@ -179,7 +179,7 @@ class Robot {
             // if (normSentido === 180) { useScale = true; } // Opcional
         } else { // Estado não coberto
             currentAnimSpeed = this.animationSpeeds.idle || this.animationSpeeds.default;
-             if (fase1.sprite_idle && fase1.sprite_idle.length > 1 && fase1.sprite_idle[1]) {
+            if (fase1.sprite_idle && fase1.sprite_idle.length > 1 && fase1.sprite_idle[1]) {
                 spriteArray = [null, fase1.sprite_idle[1]];
             } else if (fase1.sprite_andar_baixo && fase1.sprite_andar_baixo.length > 1 && fase1.sprite_andar_baixo[1]) {
                 spriteArray = [null, fase1.sprite_andar_baixo[1]];
@@ -193,19 +193,19 @@ class Robot {
             let estadoMsg = this.isRotating ? "rotacionando" : (this.isMoving ? "movendo" : (this.isIdle ? "idle ativo" : (this.isPendingIdle ? "pending idle" : "desconhecido")));
             console.error(`Array de sprite '${spriteArray}' inválido ou vazio para o estado '${estadoMsg}'. Sentido: ${normSentido}. Usando fallback.`);
             if (fase1.sprite_idle && fase1.sprite_idle.length > 1) {
-                 spriteArray = fase1.sprite_idle;
-                 currentAnimSpeed = this.animationSpeeds.idle || this.animationSpeeds.default;
+                spriteArray = fase1.sprite_idle;
+                currentAnimSpeed = this.animationSpeeds.idle || this.animationSpeeds.default;
             } else if (fase1.sprite_andar_baixo && fase1.sprite_andar_baixo.length > 1) {
-                 spriteArray = fase1.sprite_andar_baixo;
-                 currentAnimSpeed = this.animationSpeeds.andar_baixo || this.animationSpeeds.default;
+                spriteArray = fase1.sprite_andar_baixo;
+                currentAnimSpeed = this.animationSpeeds.andar_baixo || this.animationSpeeds.default;
             } else {
-                 spriteArray = [null, this.image];
-                 currentAnimSpeed = this.animationSpeeds.default;
+                spriteArray = [null, this.image];
+                currentAnimSpeed = this.animationSpeeds.default;
             }
             useScale = false;
-            if (spriteArray.length <=1 && this.image) spriteArray = [null, this.image];
+            if (spriteArray.length <= 1 && this.image) spriteArray = [null, this.image];
         }
-        
+
         maxFrames = spriteArray.length - 1;
         if (maxFrames < 1) maxFrames = 1;
 
@@ -239,10 +239,10 @@ class Robot {
         }
 
         //som do robo, parametro é o clear por isso passamos false
-        if(!this.telawin){
+        if (!this.telawin) {
             this.robotSound(false);
         }
-        
+
 
         imageMode(CENTER);
         push();
@@ -257,7 +257,7 @@ class Robot {
     }
 
 
-    robotSound(clear){
+    robotSound(clear) {
         //executando sons com base no estado
         if (clear) {
             fase1.robot_souds.movimento.stop();
@@ -274,12 +274,12 @@ class Robot {
                 fase1.robot_souds.movimento.stop();
                 fase1.robot_souds.robot_rotate.play();
             }
-        } else if (this.isIdle){
+        } else if (this.isIdle) {
             console.log("parou");
             fase1.robot_souds.robot_rotate.stop();
             fase1.robot_souds.movimento.stop();
         }
-        
+
 
     }
 
@@ -309,18 +309,18 @@ class Robot {
             this.frameCount = 0;
             return;
         }
-        
+
         this.frameCount++;
         if (this.frameCount >= animData.currentAnimSpeed) {
             this.frameCount = 0;
             this.currentFrame++;
 
             if (this.currentFrame > animData.maxFrames) {
-                this.currentFrame = 1; 
+                this.currentFrame = 1;
                 if (this.isRotating) {
                     this.isRotating = false;
-                    this.previousSentido = getNormalizedSentido(this.sentido); 
-                    this.updateState(); 
+                    this.previousSentido = getNormalizedSentido(this.sentido);
+                    this.updateState();
                 }
             }
         }
@@ -348,7 +348,7 @@ class Robot {
             } else {
                 stoppedMovingThisFrame = true;
             }
-            
+
             if (stoppedMovingThisFrame) {
                 this.isMoving = false;
             }
@@ -357,7 +357,7 @@ class Robot {
         if (reset === true) {
             this.x = this.#x;
             this.y = this.#y;
-            this.sentido = 90; 
+            this.sentido = 90;
             this.previousSentido = 90;
             this.isMoving = false;
             this.isRotating = false;
@@ -367,12 +367,12 @@ class Robot {
             this.currentFrame = 1;
             this.frameCount = 0;
         }
-        
-        if (stoppedMovingThisFrame || (!this.isMoving && reset !== true)) { 
-             this.updateState();
+
+        if (stoppedMovingThisFrame || (!this.isMoving && reset !== true)) {
+            this.updateState();
         }
     }
-    
+
     moverPara(blocoCount) {
         if (blocoCount > 0) {
             console.log("Chegou aqui")
@@ -381,13 +381,13 @@ class Robot {
             else if (normSentido === 90) this.targetPosition = this.y + (blocoCount * this.size);
             else if (normSentido === 180) this.targetPosition = this.x - (blocoCount * this.size);
             else if (normSentido === 270) this.targetPosition = this.y - (blocoCount * this.size);
-            
+
             this.isMoving = true;
             this.isIdle = false;
             this.isPendingIdle = false;
             this.timeEnteredPotentialIdleState = 0;
-            this.isRotating = false; 
-            this.currentFrame = 1; 
+            this.isRotating = false;
+            this.currentFrame = 1;
             this.frameCount = 0;
         } else {
             this.isMoving = false;
@@ -401,13 +401,13 @@ class Robot {
         this.isIdle = false;
         this.isPendingIdle = false;
         this.timeEnteredPotentialIdleState = 0;
-        this.currentFrame = 1; 
+        this.currentFrame = 1;
         this.frameCount = 0;
-        this.previousSentido = getNormalizedSentido(this.sentido); 
-        
+        this.previousSentido = getNormalizedSentido(this.sentido);
+
         if (sentidoCmd === "clockwise") this.sentido += 90;
         else if (sentidoCmd === "counterclockwise") this.sentido -= 90;
-        
-        this.sentido = getNormalizedSentido(this.sentido); 
+
+        this.sentido = getNormalizedSentido(this.sentido);
     }
 }
