@@ -40,8 +40,13 @@ let fase1 = {
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
-    imgExecutar: null,
+    // === Variáveis das imagens dos botões ===
+    imgSombratar: null,
+    imgExecutarSombra: null,
     imgLimpar: null,
+    imgLimparSombra: null,
+    imgSair: null,
+    imgSairSombra: null,
     bau: null,
     tela_win: null,
     win_sound: null,
@@ -73,7 +78,7 @@ let fase1 = {
         };
 
         let [roboX, roboY] = posicaoLivre();
-        this.robot = new Robot(roboX+2, roboY-5, 75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(roboX + 2, roboY - 5, 75); // Assumindo que Robot e Cenario existem
 
         // --- Inicialização da Lista Ligada e Templates ---
         this.blocosList = new LinkedBlocos(); // Cria a instância da lista ligada
@@ -126,7 +131,7 @@ let fase1 = {
             rect(mouseX - previewW / 2, mouseY - previewH / 2, previewW, previewH, 10); // Centralizado no mouse, bordas arredondadas
             fill(0); // Cor do texto
             textAlign(CENTER, CENTER);
-            textSize(12);
+            textSize(24);
             text(this.draggingTemplateType, mouseX, mouseY); // Texto no centro
         }
 
@@ -202,12 +207,20 @@ let fase1 = {
         }
 
         //carregando imagem dos blocos
-        this.blocoDireita = loadImage('assets/buttons_command/button_direita.png');
-        this.blocoEsquerda = loadImage('assets/buttons_command/button_esquerda.png');
-        this.blocoAvancar = loadImage('assets/buttons_command/button_frente.png');
-        this.blocoWhile_cima = loadImage('assets/buttons_command/button_repetir1.png');    
-        this.blocoWhile_vertical = loadImage('assets/buttons_command/button_repetir2.png');
-        this.blocoWhile_horizontal = loadImage('assets/buttons_command/button_repetir3.png');
+        this.blocoDireita = loadImage('assets/botoes/botoes_comando/button_direita.png');
+        this.blocoEsquerda = loadImage('assets/botoes/botoes_comando/button_esquerda.png');
+        this.blocoAvancar = loadImage('assets/botoes/botoes_comando/button_frente.png');
+        this.blocoWhile_cima = loadImage('assets/botoes/botoes_comando/button_repetir1.png');
+        this.blocoWhile_vertical = loadImage('assets/botoes/botoes_comando/button_repetir2.png');
+        this.blocoWhile_horizontal = loadImage('assets/botoes/botoes_comando/button_repetir3.png');
+
+        // Botões de comando normais
+        this.imgExecutar = loadImage('assets/botoes/botoes_comando/button_executar.png');
+        this.imgExecutarSombra = loadImage('assets/botoes/botoes_comando/button_executar_sombra.png');
+        this.imgLimpar = loadImage('assets/botoes/botoes_comando/button_limpar.png');
+        this.imgLimparSombra = loadImage('assets/botoes/botoes_comando/button_limpar_sombra.png');
+        this.imgSair = loadImage('assets/botoes/botoes_comando/button_sair.png');
+        this.imgSairSombra = loadImage('assets/botoes/botoes_comando/button_sair_sombra.png');
 
     },
 
@@ -291,43 +304,80 @@ let fase1 = {
     },
 
     displayUI: function () {
-        // Sua função displayUI existente para desenhar botões, etc.
-        // Exemplo:
-        // drawButton(350, 830, 100, 50, "Executar");
-        // drawButton(50, 830, 100, 50, "Limpar");
-        // Funções auxiliares como drawButton e isClickInside precisam existir
-        fill(0, 102, 153); // Cor Exemplo
-        rect(350, 830, 100, 50); // Botão Executar
-        rect(50, 830, 100, 50); // Botão Limpar
-        fill(255);
-        textAlign(CENTER, CENTER);
-        text("Executar", 400, 855);
-        text("Limpar", 100, 855);
+        const btnY = 830;
+        const btnHeight = 50;
+        const btnWidth = 120;
+
+        // Posições horizontais centralizadas
+        const limpar = { x: 40, y: btnY, w: btnWidth, h: btnHeight };
+        const executar = { x: 200, y: btnY, w: btnWidth, h: btnHeight };
+        const sair = { x: 400, y: btnY, w: btnWidth, h: btnHeight };
+
+        // Salva o contexto gráfico atual
+        push();
+
+        // Desenha a linha vermelha acima dos botões
+        stroke(162, 162, 162); // Cor das trilhas
+        strokeWeight(10); // Espessura da linha
+        strokeCap(PROJECT);
+        noFill(); // Sem preenchimento
+        // Linha de 540px de largura (mesma largura da área lateral)
+        // Posicionada 10px acima dos botões (btnY - 10)
+        line(0, btnY - 20, 510, btnY - 20);
+
+        // Garante que as imagens serão desenhadas no modo CORNER
+        imageMode(CORNER);
+
+        // Desenha os botões com hover
+        this.drawButton(limpar, this.imgLimpar, this.imgLimparSombra);
+        this.drawButton(executar, this.imgExecutar, this.imgExecutarSombra);
+        this.drawButton(sair, this.imgSair, this.imgSairSombra);
+
+        // Restaura o contexto gráfico (incluindo imageMode)
+        pop();
+
+        // Armazena as coordenadas para uso no clique
+        this.botoesUI = { limpar, executar, sair };
+    },
+
+    // Função auxiliar para desenhar botões
+    drawButton: function (pos, imgNormal, imgHover) {
+        if (this.isMouseOverButton(pos)) {
+            image(imgHover, pos.x, pos.y, pos.w, pos.h);
+        } else {
+            image(imgNormal, pos.x, pos.y, pos.w, pos.h);
+        }
     },
 
     ButtonClicks: function () {
-        // Função isClickInside precisa estar definida em algum lugar
-        const isClickInside = (x, y, w, h) => {
-            return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-        };
+        // Usa as mesmas coordenadas do displayUI
+        const { limpar, executar, sair } = this.botoesUI || {};
+        if (!limpar || !executar || !sair) return;
 
-        if (isClickInside(50, 830, 100, 50)) { // Botão Limpar
+        // Verifica cliques com a mesma lógica que funcionava antes
+        if (this.isMouseOverButton(limpar)) {
             console.log("Botão Limpar clicado");
             this.reinitialize();
             this.whileDetected = false;
-            this.robot.move(true); // Reseta posição do robô
+            this.robot.move(true);
         }
-        if (isClickInside(350, 830, 100, 50)) { // Botão Executar
+        else if (this.isMouseOverButton(executar)) {
             console.log("Botão Executar clicado");
             this.habilitarMovimento();
             this.somTocando = false;
         }
-        // Remover a lógica do numWhileRepeat daqui, pois foi movida para mouseClicked (ou pode ser adaptada)
-        /*
-        if(this.blocos.numWhileRepeat(mouseX, mouseY)){ // Lógica antiga
-            this.whileRep += 1;
+        else if (this.isMouseOverButton(sair)) {
+            console.log("Botão Sair clicado");
+            mudanca_tela(menu);
         }
-        */
+    },
+
+    // Função unificada de detecção (igual na versão antiga)
+    isMouseOverButton: function (botao) {
+        return mouseX >= botao.x &&
+            mouseX <= botao.x + botao.w &&
+            mouseY >= botao.y &&
+            mouseY <= botao.y + botao.h;
     },
 
     habilitarMovimento: function () {
@@ -389,7 +439,7 @@ let fase1 = {
     reinitialize: function () {
         console.log("Reinicializando fase...");
         // Limpa a sequência de blocos na lista ligada
-        
+
         this.blocosList.clear();
         this.robot.move(true);
         this.robot.robotSound(true);
