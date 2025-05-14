@@ -40,14 +40,14 @@ let fase1 = {
     // isDrawing: false, // Substituído por draggingTemplateType !== null
 
     // ... (outras propriedades como img*, bau, tela_win, etc. permanecem)
-    // === Variáveis das imagens dos botões ===
-    imgSombratar: null,
+    imgExecutar: null,
     imgExecutarSombra: null,
     imgLimpar: null,
     imgLimparSombra: null,
     imgSair: null,
     imgSairSombra: null,
     bau: null,
+    robotSouds : null,
     tela_win: null,
     win_sound: null,
     somTocando: false,
@@ -114,6 +114,11 @@ let fase1 = {
         // 1. Desenha os blocos template
         for (let i = 0; i < this.templateBlocks.length; i++) {
             this.templateBlocks[i].display();
+        }
+        //verificando se o robo sai da tela
+        if (this.robot.x < 540 || this.robot.x > 1440 || this.robot.y < 0 || this.robot.y > 900) {
+            console.warn("O robô saiu da tela! Corrigindo posição.");
+            this.reinitialize();
         }
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
@@ -204,6 +209,10 @@ let fase1 = {
         //serve para rotacionar a urinha para direita e esquerda(espelhado)
         for (let i = 1; i <= 3; i++) {
             this.sprite_rotate_direita_esquerda[i] = loadImage('assets/urinha/urinha_andar_direita/urinha_andar_d' + i + '.png');
+        }
+        this.robot_souds = {
+            movimento: loadSound('audio/robot_rotate.mp3'),
+            robot_rotate: loadSound('audio/robot_movimentos.mp3'),
         }
 
         //carregando imagem dos blocos
@@ -392,6 +401,7 @@ let fase1 = {
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             console.log("Sequência concluída ou vazia.");
             this.verificarVitoria();
+            this.blocosList.clear(); // Limpa a lista de blocos
             // Não chamar reinitialize aqui automaticamente, talvez o usuário queira ver o resultado
             return;
         }

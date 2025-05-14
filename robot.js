@@ -21,7 +21,7 @@ class Robot {
         this.y = y;
         this.size = size;
         this.image = robotImage; // Certifique-se que robotImage está definida globalmente
-
+        this.telawin = false;
         this.sentido = 90;
         this.previousSentido = 90;
         this.speed = 1; // Velocidade de movimento do robô (pixels por frame de lógica)
@@ -31,10 +31,7 @@ class Robot {
         this.isRotating = false;
 
         //sons do robo
-        this.robot_souds = {
-            movimento: loadSound('audio/robot_rotate.mp3'),
-            robot_rotate: loadSound('audio/robot_movimentos.mp3'),
-        }
+        
 
         // Controle de animação
         this.currentFrame = 1;
@@ -59,7 +56,7 @@ class Robot {
         this.targetPosition = 0;
 
         // Controle de Delay para Animação de Idle
-        this.idleDelayDuration = 2000;
+        this.idleDelayDuration = 1000;
         this.timeEnteredPotentialIdleState = 0;
         this.isPendingIdle = false;
         this.isIdle = true;
@@ -226,11 +223,6 @@ class Robot {
             this.currentFrame = 1;
         }
 
-        //verificando se o robo sai da tela
-        if (this.x < 540 || this.x > 1440 || this.y < 0 || this.y > 900) {
-            console.warn("O robô saiu da tela! Corrigindo posição.");
-            fase1.reinitialize();
-        }
 
         const currentSpriteImage = anim.spriteArray[this.currentFrame];
 
@@ -247,7 +239,10 @@ class Robot {
         }
 
         //som do robo, parametro é o clear por isso passamos false
-        this.robotSound(false);
+        if(!this.telawin){
+            this.robotSound(false);
+        }
+        
 
         imageMode(CENTER);
         push();
@@ -265,21 +260,26 @@ class Robot {
     robotSound(clear){
         //executando sons com base no estado
         if (clear) {
-            this.robot_souds.movimento.stop();
-            this.robot_souds.robot_rotate.stop();
+            fase1.robot_souds.movimento.stop();
+            fase1.robot_souds.robot_rotate.stop();
         }
 
         if (this.isMoving && !this.isRotating) {
-            if (!this.robot_souds.movimento.isPlaying()) {
-                this.robot_souds.robot_rotate.stop();
-                this.robot_souds.movimento.play();
+            if (!fase1.robot_souds.movimento.isPlaying()) {
+                fase1.robot_souds.robot_rotate.stop();
+                fase1.robot_souds.movimento.play();
             }
         } else if (this.isRotating) {
-            if (!this.robot_souds.robot_rotate.isPlaying()) {
-                this.robot_souds.movimento.stop();
-                this.robot_souds.robot_rotate.play();
+            if (!fase1.robot_souds.robot_rotate.isPlaying()) {
+                fase1.robot_souds.movimento.stop();
+                fase1.robot_souds.robot_rotate.play();
             }
+        } else if (this.isIdle){
+            console.log("parou");
+            fase1.robot_souds.robot_rotate.stop();
+            fase1.robot_souds.movimento.stop();
         }
+        
 
     }
 
@@ -375,6 +375,7 @@ class Robot {
     
     moverPara(blocoCount) {
         if (blocoCount > 0) {
+            console.log("Chegou aqui")
             const normSentido = getNormalizedSentido(this.sentido);
             if (normSentido === 0) this.targetPosition = this.x + (blocoCount * this.size);
             else if (normSentido === 90) this.targetPosition = this.y + (blocoCount * this.size);
