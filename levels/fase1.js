@@ -102,6 +102,7 @@ let fase1 = {
 
     draw: function () {
         background("#fff");
+        imageMode(CENTER);
         console.log("Lateral bg dimensions:",
             this.textura_lateral_background.width,
             this.textura_lateral_background.height);
@@ -123,7 +124,7 @@ let fase1 = {
 
         // 2. Desenha os blocos da sequência (usando o método da lista)
         this.blocosList.display();
-        imageMode(CENTER);
+        
 
         // --- Desenhar Preview (Arrastando Template) ---
         if (this.draggingTemplateType !== null) {
@@ -214,6 +215,11 @@ let fase1 = {
             movimento: loadSound('audio/robot_rotate.mp3'),
             robot_rotate: loadSound('audio/robot_movimentos.mp3'),
         }
+
+        this.imgExecutar = loadImage('assets/botoes/botoes_comando/button_executar.png');
+        this.imgExecutar_sombra = loadImage('assets/botoes/botoes_comando/button_executar_sombra.png');
+        this.imgLimpar = loadImage('assets/botoes/botoes_comando/button_limpar.png');
+        this.imgLimpar_sombra = loadImage('assets/botoes/botoes_comando/button_limpar_sombra.png');
 
         //carregando imagem dos blocos
         this.blocoDireita = loadImage('assets/botoes/botoes_comando/button_direita.png');

@@ -21,6 +21,27 @@ let tela_winner = {
             w: 600,         // Largura da imagem
             h: 240          // Altura da imagem
         };
+
+        this.botoes = [
+                {
+                    normalImg: loadImage('assets/botoes/botoes_vitoria/button_menu.png'),
+                    hoverImg: loadImage('assets/botoes/botoes_vitoria/button_menu_sombra.png'),
+                    x: 1150 + 250/2, // um pouco à direita do centro
+                    y: 810 + 30,
+                    w: 250,
+                    h: 60
+                },
+                {
+                    normalImg: loadImage('assets/botoes/botoes_vitoria/button_novamente.png'),
+                    hoverImg: loadImage('assets/botoes/botoes_vitoria/button_novamente_sombra.png'),
+                    x: 100 + 250/2, // um pouco à esquerda do centro
+                    y: 810 + 30,
+                    w: 280,
+                    h: 60
+                }
+            ];
+
+
         this.sequenciaDeMovimentos = [
             { type: "rotate", direction: "counterclockwise" },
             { type: "move", steps: 17 },
@@ -37,11 +58,11 @@ let tela_winner = {
 
         ]
         this.copia = this.sequenciaDeMovimentos.slice();
-        this.robot = new Robot(50, 450, 75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(80, 450,75); // Assumindo que Robot e Cenario existem
         this.robot.telawin = true;
-        this.robot.speed = 5;
-
-
+        this.robot.speed = 8;
+        
+       
     },
 
     // Função para desenhar a tela
@@ -74,8 +95,12 @@ let tela_winner = {
 
         // Desenhar os botões diretamente no canvas
         textSize(20);
-        this.drawButton(1150, 830, 100, 60, "MENU");
-        this.drawButton(100, 830, 300, 60, "JOGAR NOVAMENTE");
+        //this.drawButton(1150, 830, 100, 60, "MENU");
+        //this.drawButton(100, 830, 300, 60, "JOGAR NOVAMENTE");
+        // Desenhar os botões diretamente no canvas
+        for (let botao of this.botoes) {
+            this.desenharBotao(botao);
+        }
     },
 
     // Função para desenhar um botão
@@ -91,6 +116,17 @@ let tela_winner = {
         textAlign(CENTER, CENTER);
         text(label, x + w / 2, y + h / 2);
 
+    },
+
+    desenharBotao: function (botao) {
+        push();
+        imageMode(CENTER);
+        if (this.isMouseOver(botao) && botao.hoverImg) {
+            image(botao.hoverImg, botao.x, botao.y, botao.w, botao.h);
+        } else {
+            image(botao.normalImg, botao.x, botao.y, botao.w, botao.h);
+        }
+        pop();
     },
 
     // Função de clique do mouse
@@ -112,6 +148,14 @@ let tela_winner = {
         return mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h;
     },
 
+    isMouseOver: function(botao) {
+        return mouseX > botao.x - botao.w / 2 &&
+               mouseX < botao.x + botao.w / 2 &&
+               mouseY > botao.y - botao.h / 2 &&
+               mouseY < botao.y + botao.h / 2;
+    },
+
+
     executeMovementSequence: function () {
         if (!this.sequenciaDeMovimentos || this.sequenciaDeMovimentos.length === 0) {
             this.sequenciaDeMovimentos = this.copia.slice();
@@ -126,10 +170,10 @@ let tela_winner = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps * (1 / 4)); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps*(1/6)); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 602 * (1 / 4)); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 602*(1/2)); // Ajustar delay
         } else {
             console.warn("Tipo de movimento desconhecido:", this.movimento.type);
             this.executeMovementSequence(); // Pula para o próximo
