@@ -185,5 +185,4 @@ let tela_winner = {
         // Aqui você pode adicionar funções para limpar ou resetar o canvas, se necessário.
         clear();
     }
-    }
 }
