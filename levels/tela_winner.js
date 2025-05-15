@@ -1,7 +1,7 @@
 let tela_winner = {
-    
+
     // Função de inicialização
-    init: function() {
+    init: function () {
         // Reseta o estado gráfico para garantir consistência
         this.resetCanvasState();
         this.funcione = true;
@@ -44,18 +44,18 @@ let tela_winner = {
 
         this.sequenciaDeMovimentos = [
             { type: "rotate", direction: "counterclockwise" },
-            { type: "move", steps: 17},
-            
+            { type: "move", steps: 17 },
+
             { type: "rotate", direction: "clockwise" },
-            
-            { type: "move", steps: 3},
+
+            { type: "move", steps: 3 },
             { type: "rotate", direction: "clockwise" },
-            { type: "move", steps: 17},
-            { type: "rotate", direction: "clockwise"},
-            { type: "move", steps: 3},
-            { type: "rotate", direction: "clockwise"},
-            { type: "rotate", direction: "clockwise"}
-        
+            { type: "move", steps: 17 },
+            { type: "rotate", direction: "clockwise" },
+            { type: "move", steps: 3 },
+            { type: "rotate", direction: "clockwise" },
+            { type: "rotate", direction: "clockwise" }
+
         ]
         this.copia = this.sequenciaDeMovimentos.slice();
         this.robot = new Robot(80, 450,75); // Assumindo que Robot e Cenario existem
@@ -66,10 +66,10 @@ let tela_winner = {
     },
 
     // Função para desenhar a tela
-    draw: function() {
+    draw: function () {
         // 1. Desenha o fundo com a cor definida
         background(this.corFundo);
-        
+
         // 2. Configura e desenha o logo centralizado
         imageMode(CENTER); // Imagem ancorada no centro
         image(
@@ -79,16 +79,16 @@ let tela_winner = {
             this.logo.w,
             this.logo.h
         );
- 
+
         textSize(50);
         textAlign(CENTER, CENTER);
         text('Parabéns, você chegou ao tesouro!', width / 2, 400);
         this.robot.display();
-        if (this.funcione){
+        if (this.funcione) {
             this.executeMovementSequence();
             this.funcione = false; // Desabilita a execução automática após o primeiro movimento
         }
-        
+
         if (this.robot.isMoving) {
             this.robot.move(false);
         }
@@ -104,17 +104,17 @@ let tela_winner = {
     },
 
     // Função para desenhar um botão
-    drawButton: function(x, y, w, h, label) {
+    drawButton: function (x, y, w, h, label) {
         let isHover = mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h;
 
-    fill(isHover ? this.corBotaoHover : this.corBotaoNormal);
-    stroke(this.corBorda);
-    rect(x, y, w, h, 10); // Desenha o botão com borda arredondada
+        fill(isHover ? this.corBotaoHover : this.corBotaoNormal);
+        stroke(this.corBorda);
+        rect(x, y, w, h, 10); // Desenha o botão com borda arredondada
 
-    fill(this.corTexto);
-    textSize(20);
-    textAlign(CENTER, CENTER);
-    text(label, x + w / 2, y + h / 2);
+        fill(this.corTexto);
+        textSize(20);
+        textAlign(CENTER, CENTER);
+        text(label, x + w / 2, y + h / 2);
 
     },
 
@@ -130,12 +130,12 @@ let tela_winner = {
     },
 
     // Função de clique do mouse
-    mouseClicked: function() {
+    mouseClicked: function () {
         this.ButtonClicks();
     },
 
     // Função para detectar clique nos botões
-    ButtonClicks: function() {
+    ButtonClicks: function () {
         if (this.isClickInside(1150, 830, 100, 60)) {
             mudanca_tela(menu);
         } else if (this.isClickInside(100, 830, 300, 60)) {
@@ -144,7 +144,7 @@ let tela_winner = {
     },
 
     // Função para verificar se o clique está dentro da área do botão
-    isClickInside: function(x, y, w, h) {
+    isClickInside: function (x, y, w, h) {
         return mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h;
     },
 
@@ -181,8 +181,9 @@ let tela_winner = {
     },
 
     // Função para resetar o estado gráfico (se necessário)
-    resetCanvasState: function() {
+    resetCanvasState: function () {
         // Aqui você pode adicionar funções para limpar ou resetar o canvas, se necessário.
         clear();
+    }
     }
 }

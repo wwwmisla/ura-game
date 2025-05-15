@@ -74,9 +74,10 @@ let creditos = {
         textFont("sans-serif");
         textSize(36);
         textAlign(CENTER, CENTER);
-        text("👥", width / 2 - 260, yPos + 44);
+        text("👥", width / 2 - 400, yPos + 55);
 
         // Subtítulo
+        textFont(this.fonte);
         textSize(36);
         fill(this.corPrincipal);
         textAlign(CENTER, CENTER);
