@@ -5,17 +5,24 @@ let tela_winner = {
         // Reseta o estado gráfico para garantir consistência
         this.resetCanvasState();
         this.funcione = true;
+
+        // Background 
+        this.backgroundImage = loadImage("assets/background/background_90x90.png")
+
         // Paleta de cores (azul pastel como tema principal)
         this.corFundo = color(204, 229, 255);    // Fundo azul claro
-        this.corPrincipal = color(70, 100, 140);  // Textos principais
+        this.corPrincipal = color(246, 246, 246);  // Textos principais
         this.corBotaoNormal = color(240, 248, 255, 200); // Botões - estado normal
         this.corBotaoHover = color(100, 150, 255);       // Botões - mouse sobre
         this.corTexto = color(70, 100, 140);     // Cor do texto dos botões
         this.corBorda = color(120, 150, 190);    // Bordas dos elementos
 
+        // Fonte
+        this.fonte = loadFont("fonts/Silkscreen-Bold.ttf")
+
         // Configuração do logo
         this.logo = {
-            img: loadImage('assets/logos/ura_title.png'), // Carrega imagem
+            img: loadImage('assets/logos/ura_title_white.png'), // Carrega imagem
             x: width / 2,   // Centralizado horizontalmente
             y: 150,         // Posição vertical fixa
             w: 600,         // Largura da imagem
@@ -23,23 +30,23 @@ let tela_winner = {
         };
 
         this.botoes = [
-                {
-                    normalImg: loadImage('assets/botoes/botoes_vitoria/button_menu.png'),
-                    hoverImg: loadImage('assets/botoes/botoes_vitoria/button_menu_sombra.png'),
-                    x: 1150 + 250/2, // um pouco à direita do centro
-                    y: 810 + 30,
-                    w: 250,
-                    h: 60
-                },
-                {
-                    normalImg: loadImage('assets/botoes/botoes_vitoria/button_novamente.png'),
-                    hoverImg: loadImage('assets/botoes/botoes_vitoria/button_novamente_sombra.png'),
-                    x: 100 + 250/2, // um pouco à esquerda do centro
-                    y: 810 + 30,
-                    w: 280,
-                    h: 60
-                }
-            ];
+            {
+                normalImg: loadImage('assets/botoes/botoes_vitoria/button_menu.png'),
+                hoverImg: loadImage('assets/botoes/botoes_vitoria/button_menu_sombra.png'),
+                x: 1150 + 250 / 2, // um pouco à direita do centro
+                y: 810 + 30,
+                w: 240,
+                h: 60
+            },
+            {
+                normalImg: loadImage('assets/botoes/botoes_vitoria/button_novamente.png'),
+                hoverImg: loadImage('assets/botoes/botoes_vitoria/button_novamente_sombra.png'),
+                x: 100 + 250 / 2, // um pouco à esquerda do centro
+                y: 810 + 30,
+                w: 240,
+                h: 60
+            }
+        ];
 
 
         this.sequenciaDeMovimentos = [
@@ -58,19 +65,23 @@ let tela_winner = {
 
         ]
         this.copia = this.sequenciaDeMovimentos.slice();
-        this.robot = new Robot(80, 450,75); // Assumindo que Robot e Cenario existem
+        this.robot = new Robot(80, 450, 75); // Assumindo que Robot e Cenario existem
         this.robot.telawin = true;
         this.robot.speed = 8;
-        
-       
+
+
     },
 
     // Função para desenhar a tela
     draw: function () {
-        // 1. Desenha o fundo com a cor definida
-        background(this.corFundo);
+        // 1. Background
+        // tint(200, 200);
+        imageMode(CORNER)
+        image(this.backgroundImage, 0, 0, width, height);
+        // noTint();
 
         // 2. Configura e desenha o logo centralizado
+        tint(200, 200);
         imageMode(CENTER); // Imagem ancorada no centro
         image(
             this.logo.img,
@@ -79,10 +90,24 @@ let tela_winner = {
             this.logo.w,
             this.logo.h
         );
+        noTint();
 
+        textFont(this.fonte);
         textSize(50);
         textAlign(CENTER, CENTER);
-        text('Parabéns, você chegou ao tesouro!', width / 2, 400);
+        fill(this.corPrincipal);
+        textFont("sans-serif");
+        text('🎉', width / 2 - 240, 350);
+        textFont(this.fonte);
+        text('Parabéns!', width / 2, 350);
+        textFont("sans-serif");
+        text('🎉', width / 2 + 240, 350);
+        textFont("sans-serif");
+        text("🏆", width/2 - 540, 400);
+        textFont(this.fonte);
+        text("Você encontrou o tesouro!", width/2, 400);
+        textFont("sans-serif");
+        text("🏆", width/2 + 540, 400);
         this.robot.display();
         if (this.funcione) {
             this.executeMovementSequence();
@@ -94,7 +119,7 @@ let tela_winner = {
         }
 
         // Desenhar os botões diretamente no canvas
-        textSize(20);
+        // textSize(20);
         //this.drawButton(1150, 830, 100, 60, "MENU");
         //this.drawButton(100, 830, 300, 60, "JOGAR NOVAMENTE");
         // Desenhar os botões diretamente no canvas
@@ -148,11 +173,11 @@ let tela_winner = {
         return mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h;
     },
 
-    isMouseOver: function(botao) {
+    isMouseOver: function (botao) {
         return mouseX > botao.x - botao.w / 2 &&
-               mouseX < botao.x + botao.w / 2 &&
-               mouseY > botao.y - botao.h / 2 &&
-               mouseY < botao.y + botao.h / 2;
+            mouseX < botao.x + botao.w / 2 &&
+            mouseY > botao.y - botao.h / 2 &&
+            mouseY < botao.y + botao.h / 2;
     },
 
 
@@ -170,10 +195,10 @@ let tela_winner = {
 
         if (this.movimento.type === "move") {
             this.robot.moverPara(this.movimento.steps); // Assumindo que Robot tem moverPara
-            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps*(1/6)); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 1505 * this.movimento.steps * (1 / 6)); // Ajustar delay
         } else if (this.movimento.type === "rotate") {
             this.robot.rotacionar(this.movimento.direction); // Assumindo que Robot tem rotacionar
-            setTimeout(() => this.executeMovementSequence(), 602*(1/2)); // Ajustar delay
+            setTimeout(() => this.executeMovementSequence(), 602 * (1 / 2)); // Ajustar delay
         } else {
             console.warn("Tipo de movimento desconhecido:", this.movimento.type);
             this.executeMovementSequence(); // Pula para o próximo
